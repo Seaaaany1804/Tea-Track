@@ -1,22 +1,29 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react'
 import { MdEmail, MdLock } from 'react-icons/md'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import BgCircle from '../components/bg-circle'
 
 function LoginPage() {
+  const navigate = useNavigate(); // Initialize the navigate hook
+
+  const handleLogin = () => {
+    // Here you can add validation or API integration
+    navigate('/dashboard'); // Redirect to InventoryPage after successful login
+  }
+
   return (
     <div className="h-screen bg-[#14463A]">
       <div className="absolute inset-0 overflow-hidden">
         <BgCircle />
       </div>
       {/* Centered Login Card */}
-      <div className="h-screen bg-opacity-10 backdrop-filter backdrop-blur-[70px] flex items-center justify-center ">
-        <div className='p-8 rounded-lg shadow-xl w-full max-w-md bg-[#0D2F26]'>
+      <div className="h-screen bg-opacity-10 backdrop-filter backdrop-blur-[70px] flex items-center justify-center">
+        <div className="p-8 rounded-lg shadow-xl w-full max-w-md bg-[#0D2F26]">
           <div className="flex justify-center mb-6">
-            <img 
-              src="/assets/images/icons/Logo-Yellow.png" 
-              alt="Tea Track Logo" 
+            <img
+              src="/assets/images/icons/Logo-Yellow.png"
+              alt="Tea Track Logo"
               className="w-16 h-16"
             />
           </div>
@@ -49,12 +56,16 @@ function LoginPage() {
             </div>
 
             <div className="text-right">
-              <Link to="/forgot-password" className="text-gray-300 hover:text-white text-sm">
+              <Link to="/forgot-password" className="text-gray-300 underline hover:text-white text-sm">
                 Forgot Password?
               </Link>
             </div>
 
-            <button className="w-full bg-[#E39E05] hover:bg-[#d99900] text-white py-2 rounded transition-colors">
+            {/* Updated Button to Use handleLogin */}
+            <button
+              className="w-full bg-[#E39E05] hover:bg-[#d99900] text-white py-2 rounded transition-colors"
+              onClick={handleLogin} // Redirect on click
+            >
               Login
             </button>
 
@@ -72,3 +83,4 @@ function LoginPage() {
 }
 
 export default LoginPage
+  

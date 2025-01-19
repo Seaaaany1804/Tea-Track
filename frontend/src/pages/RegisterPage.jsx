@@ -13,6 +13,7 @@ function RegisterPage() {
     firstName: '',
     middleName: '',
     lastName: '',
+    suffix: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -27,12 +28,14 @@ function RegisterPage() {
     }));
   };
 
+  const suffixOptions = ["", "Jr.", "Sr.", "I", "II", "III", "IV", "V"];
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { username, phoneNumber, firstName, lastName, email, password, confirmPassword, agreeTerms } = formData;
+    const { username, phoneNumber, firstName, lastName, suffix, email, password, confirmPassword, agreeTerms } = formData;
 
     // Form validation
-    if (!username || !phoneNumber || !firstName || !lastName || !email || !password || !confirmPassword || !agreeTerms) {
+    if (!username || !phoneNumber || !firstName || !lastName || !suffix || !email || !password || !confirmPassword || !agreeTerms) {
       alert('Please fill out all required fields and accept the terms.');
       return;
     }
@@ -49,6 +52,7 @@ function RegisterPage() {
       firstName: '',
       middleName: '',
       lastName: '',
+      suffix: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -152,6 +156,22 @@ function RegisterPage() {
                   className="w-full pl-10 pr-4 py-2 rounded bg-white"
                   required
                 />
+              </div>
+
+              <div className="relative">
+                <MdPerson className="absolute left-3 top-1/2 -translate-y-1/2 text-black" />
+                <select
+                  name="suffix"
+                  value={formData.suffix}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2 rounded bg-white"
+                >
+                  {suffixOptions.map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
