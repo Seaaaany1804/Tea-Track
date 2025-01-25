@@ -7,7 +7,12 @@ import InventoryPage from "./pages/Admin/InventoryPage";
 import DashboardPage from "./pages/Admin/DashboardPage";
 import OrderPage from "./pages/Admin/OrderPage";
 import LogPage from "./pages/Admin/LogPage";
-
+import LandingPage from "./pages/Client/LandingPage";
+import ClientsInterface from "./pages/ClientsAccount/ClientsInterface";
+import Orders from "./pages/ClientsAccount/Orders";
+import Cart from "./pages/ClientsAccount/Cart";
+import History from "./pages/ClientsAccount/History";
+import BuyItem from "./pages/ClientsAccount/BuyItem";
 export default function App() {
   return (
     <Router>
@@ -27,8 +32,19 @@ export default function App() {
         <Route path="/orders" element={<OrderPage />} />
 
         <Route path="/logs" element={<LogPage />} />
+
         {/* Redirect to /login by default */}
         <Route path="/" element={<LoginPage />} />
+
+        {/* Landing Page */}
+        <Route path="/landingpage" element={<LandingPage/>}/>
+        
+        {/* Clients Interface */}
+        <Route path='/client' element={<ClientsInterface/>}/>
+        <Route path='/clientorders' element={<Orders/>}/>
+        <Route path='/clientcart' element={<Cart/>}/>
+        <Route path='/clienthistory' element={<History/>}/>
+        <Route path='/buyitem' element={<BuyItem/>}/>
       </Routes>
     </Router>
   );
