@@ -3,6 +3,7 @@ const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(cors());
@@ -14,6 +15,18 @@ const db = mysql.createConnection({
   password: process.env.PASSWORD,
   database: process.env.DATABASE,
 });
+
+// Email configuration
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,     // Your Gmail address
+    pass: process.env.EMAIL_APP_PASSWORD  // Your Gmail app password
+  }
+});
+
+// Store verification codes temporarily (in memory)
+const verificationCodes = new Map();
 
 app.get("/", (req, res) => {
   return res.json("From Backend Side");
@@ -66,6 +79,57 @@ app.post("/users", (req, res) => {
       userId: result.insertId 
     });
   });
+});
+
+// Send verification code route
+app.post("/api/send-verification", async (req, res) => {
+  const { email, code } = req.body;
+  
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Your Email Verification Code',
+      text: `Your verification code is: ${code}\nThis code will expire in 5 minutes.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+          <h2>Email Verification</h2>
+          <p>Your verification code is:</p>
+          <h1 style="color: #E39E05; font-size: 32px;">${code}</h1>
+          <p>This code will expire in 5 minutes.</p>
+        </div>
+      `
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Email error:', error);
+    res.status(500).json({ success: false, message: 'Failed to send verification code' });
+  }
+});
+
+// Verify user and update database
+app.post("/api/verify-user", async (req, res) => {
+  const { userId, email } = req.body;
+
+  try {
+    const sql = "UPDATE users SET is_verified = true WHERE id = ? AND email_address = ?";
+    db.query(sql, [userId, email], (err, result) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ success: false, error: 'Database error' });
+      }
+      
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ success: false, error: 'User not found' });
+      }
+      
+      res.json({ success: true });
+    });
+  } catch (error) {
+    console.error('Verification error:', error);
+    res.status(500).json({ success: false, error: 'Verification failed' });
+  }
 });
 
 app.listen(process.env.PORT, () => {
