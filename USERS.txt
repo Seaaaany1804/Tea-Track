@@ -1,0 +1,14 @@
+CREATE TABLE users (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(255) NOT NULL,
+  phone_number VARCHAR(20),
+  first_name VARCHAR(255),
+  middle_name VARCHAR(255),
+  last_name VARCHAR(255),
+  suffix VARCHAR(10),
+  email_address VARCHAR(255),
+  password VARCHAR(255),
+  user_type ENUM('admin', 'user', 'staff') DEFAULT 'user',
+  is_verified BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
