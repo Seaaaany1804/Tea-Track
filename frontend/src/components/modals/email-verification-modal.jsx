@@ -1,17 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MdMarkEmailRead, MdLock } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
-function EmailVerificationModal({ onClose }) {
+function EmailVerificationModal({ email, userId, onClose }) {
   const [timer, setTimer] = useState(300); // 5 minutes countdown
   const [code, setCode] = useState(new Array(6).fill(""));
   const [showSuccessModal, setShowSuccessModal] = useState(false); // To show the new modal
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
   const navigate = useNavigate();
+  const isInitialMount = useRef(true);  // Add this ref
+
+  // Generate a random 6-digit code
+  const generateVerificationCode = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  };
+
+  const sendVerificationCode = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+      
+      // Generate new verification code and store it
+      const newCode = generateVerificationCode();
+      setVerificationCode(newCode);
+
+      console.log('Sending verification request:', {
+        email: email,
+        code: newCode
+      });
+      
+      const response = await fetch('http://localhost:8081/api/send-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          email: email,
+          code: newCode
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send verification code');
+      }
+    } catch (error) {
+      setError('Failed to send verification code');
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      sendVerificationCode();
+    }
+
     const countdown = setInterval(() => {
       setTimer((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
+
     return () => clearInterval(countdown);
   }, []);
 
@@ -33,12 +82,34 @@ function EmailVerificationModal({ onClose }) {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const enteredCode = code.join('');
-    if (enteredCode === "123456") { // Example verification logic
-      setShowSuccessModal(true);
+    
+    if (enteredCode === verificationCode) {
+      try {
+        setIsLoading(true);
+        const response = await fetch('http://localhost:8081/api/verify-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            userId,
+            email,
+            code: enteredCode
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to verify user');
+        }
+
+        setShowSuccessModal(true);
+      } catch (error) {
+        setError('Verification failed. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
     } else {
-      alert("Invalid verification code!");
+      setError('Invalid verification code!');
     }
   };
 
@@ -53,7 +124,7 @@ function EmailVerificationModal({ onClose }) {
 
           {/* Success Message */}
           <p className="mb-4 text-lg">
-            You have successfully changed your password.
+            You have successfully registered your account.
           </p>
 
           {/* Login Button */}
@@ -85,7 +156,7 @@ function EmailVerificationModal({ onClose }) {
         {/* Verification Message */}
         <p className="mb-4 text-lg">
           Your verification code is sent by Email to <br />
-          <span className="text-[#E39E05] font-bold">example@gmail.com</span>
+          <span className="text-[#E39E05] font-bold">{email}</span>
         </p>
 
         {/* Verification Code Inputs */}
@@ -109,7 +180,7 @@ function EmailVerificationModal({ onClose }) {
         {/* Resend Code Button */}
         <button 
           className="text-white underline mb-4"
-          onClick={() => setTimer(300)} // Reset timer
+          onClick={sendVerificationCode} // Reset timer
         >
           Send Again
         </button>

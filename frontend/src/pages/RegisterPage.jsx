@@ -19,6 +19,7 @@ function RegisterPage() {
     confirmPassword: '',
     agreeTerms: false,
   });
+  const [registeredUserId, setRegisteredUserId] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -33,6 +34,9 @@ function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { username, phoneNumber, firstName, middleName, lastName, suffix, email, password, confirmPassword, agreeTerms } = formData;
+
+    // Add debug log
+    console.log('Form data before submission:', formData);
 
     // Form validation
     if (!username || !phoneNumber || !firstName || !lastName || !email || !password || !confirmPassword || !agreeTerms) {
@@ -66,9 +70,17 @@ function RegisterPage() {
       const data = await response.json();
 
       if (response.ok) {
-        alert('Registration successful!');
-        // Clear the form data after successful registration
-        setFormData({
+        console.log('Registration successful, showing modal with:', {
+          email: formData.email,
+          userId: data.userId
+        });
+
+        setRegisteredUserId(data.userId);
+        setShowModal(true);
+
+        // Don't clear form data until after modal is shown
+        // Move the form clearing after verification is complete
+        /*setFormData({
           username: '',
           phoneNumber: '',
           firstName: '',
@@ -79,9 +91,8 @@ function RegisterPage() {
           password: '',
           confirmPassword: '',
           agreeTerms: false,
-        });
-        // Show the verification modal
-        setShowModal(true);
+        });*/
+        
       } else {
         alert(`Registration failed: ${data.error || 'Unknown error occurred'}`);
       }
@@ -275,7 +286,28 @@ function RegisterPage() {
       </div>
 
       {/* Verification Modal */}
-      {/* {showModal && <EmailVerificationModal onClose={() => setShowModal(false)} />} */}
+      {showModal && (
+        <EmailVerificationModal 
+          email={formData.email}
+          userId={registeredUserId}
+          onClose={() => {
+            setShowModal(false);
+            // Clear form data after modal is closed
+            setFormData({
+              username: '',
+              phoneNumber: '',
+              firstName: '',
+              middleName: '',
+              lastName: '',
+              suffix: '',
+              email: '',
+              password: '',
+              confirmPassword: '',
+              agreeTerms: false,
+            });
+          }} 
+        />
+      )}
     </div>
   )
 }
