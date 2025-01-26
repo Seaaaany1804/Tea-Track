@@ -31,34 +31,40 @@ app.get("/users", (req, res) => {
 // POST route to add a user
 app.post("/users", (req, res) => {
   const { 
-    username, 
-    first_name, 
-    middle_name, 
-    last_name, 
-    email_address, 
-    password, 
-    phone_number, 
-    user_type 
+    username,
+    phoneNumber,
+    firstName,
+    middleName,
+    lastName,
+    suffix,
+    email,
+    password
   } = req.body;
 
   const sql = `INSERT INTO users 
-    (username, first_name, middle_name, last_name, email_address, password, phone_number, user_type) 
+    (username, phone_number, first_name, middle_name, last_name, suffix, email_address, password) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
   const values = [
     username,
-    first_name,
-    middle_name,
-    last_name,
-    email_address,
-    password,
-    phone_number,
-    user_type,
+    phoneNumber,
+    firstName,
+    middleName,
+    lastName,
+    suffix,
+    email,
+    password  // Note: In production, this should be hashed!
   ];
 
   db.query(sql, values, (err, result) => {
-    if (err) return res.status(500).json(err);
-    return res.status(201).json({ message: "User added successfully", userId: result.id });
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    return res.status(201).json({ 
+      message: "User registered successfully", 
+      userId: result.insertId 
+    });
   });
 });
 
