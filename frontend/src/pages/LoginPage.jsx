@@ -1,15 +1,55 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { MdEmail, MdLock } from 'react-icons/md'
 import { Link, useNavigate } from 'react-router-dom'
 import BgCircle from '../components/bg-circle'
 
 function LoginPage() {
-  const navigate = useNavigate(); // Initialize the navigate hook
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
-    // Here you can add validation or API integration
-    navigate('/dashboard'); // Redirect to InventoryPage after successful login
+  // Check if user is already logged in
+  useEffect(() => {
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
+
+  const handleLogin = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+
+      const response = await fetch('http://localhost:8081/users');
+      const users = await response.json();
+
+      const user = users.find(u => 
+        (u.email_address === email || u.username === email) && 
+        u.password === password
+      );
+
+      if (user) {
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userId', user.id);
+        navigate('/dashboard');
+      } else {
+        setError('Invalid email/username or password');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('An error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Add this function to handle logout (you can use it in other components)
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    navigate('/login');
   }
 
   return (
@@ -37,12 +77,17 @@ function LoginPage() {
 
           {/* Input Fields */}
           <div className="space-y-4">
+            {error && (
+              <p className="text-red-500 text-sm text-center">{error}</p>
+            )}
             <div className="relative">
               <MdEmail className="absolute left-3 top-1/2 -translate-y-1/2 text-black" />
               <input
                 type="email"
                 placeholder="example@gmail.com"
                 className="w-full pl-10 pr-4 py-2 rounded bg-white"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
@@ -52,6 +97,8 @@ function LoginPage() {
                 type="password"
                 placeholder="••••••••••••••••"
                 className="w-full pl-10 pr-4 py-2 rounded bg-white"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
@@ -64,9 +111,10 @@ function LoginPage() {
             {/* Updated Button to Use handleLogin */}
             <button
               className="w-full bg-[#E39E05] hover:bg-[#d99900] text-white py-2 rounded transition-colors"
-              onClick={handleLogin} // Redirect on click
+              onClick={handleLogin}
+              disabled={isLoading}
             >
-              Login
+              {isLoading ? 'Logging in...' : 'Login'}
             </button>
 
             <p className="text-center text-gray-300 text-sm">
