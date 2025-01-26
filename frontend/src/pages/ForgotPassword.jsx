@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MdEmail, MdLock } from 'react-icons/md';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import BgCircle from '../components/bg-circle';
 
 function ForgotPassword() {
+  const navigate = useNavigate();
   // State to toggle between forms
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+
+  // Add route guard
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (isLoggedIn === 'true') {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   // Handle form submission
   const handleSubmit = (e) => {

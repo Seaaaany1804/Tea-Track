@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { MdPerson, MdEmail, MdLock, MdPhone, MdEventNote } from 'react-icons/md'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import EmailVerificationModal from '../components/modals/email-verification-modal' // Import the modal component
 import BgCircle from '../components/bg-circle';
 
@@ -20,6 +20,14 @@ function RegisterPage() {
     agreeTerms: false,
   });
   const [registeredUserId, setRegisteredUserId] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (isLoggedIn === 'true') {
+      navigate('/dashboard');
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

@@ -13,7 +13,8 @@ function LoginPage() {
 
   // Check if user is already logged in
   useEffect(() => {
-    if (localStorage.getItem('isLoggedIn') === 'true') {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (isLoggedIn === 'true') {
       navigate('/dashboard');
     }
   }, [navigate]);
