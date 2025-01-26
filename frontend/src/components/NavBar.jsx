@@ -20,6 +20,11 @@ function Navbar() {
     };
 
     const handleConfirmLogout = () => {
+        // Clear all stored user data
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userId');
+        
+        // Close modal and redirect
         setIsModalOpen(false);
         navigate('/login'); // Redirect to login page
     };
