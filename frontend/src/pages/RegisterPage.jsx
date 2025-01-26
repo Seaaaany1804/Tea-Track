@@ -30,12 +30,12 @@ function RegisterPage() {
 
   const suffixOptions = ["", "Jr.", "Sr.", "I", "II", "III", "IV", "V"];
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const { username, phoneNumber, firstName, lastName, suffix, email, password, confirmPassword, agreeTerms } = formData;
+    const { username, phoneNumber, firstName, middleName, lastName, suffix, email, password, confirmPassword, agreeTerms } = formData;
 
     // Form validation
-    if (!username || !phoneNumber || !firstName || !lastName || !suffix || !email || !password || !confirmPassword || !agreeTerms) {
+    if (!username || !phoneNumber || !firstName || !lastName || !email || !password || !confirmPassword || !agreeTerms) {
       alert('Please fill out all required fields and accept the terms.');
       return;
     }
@@ -45,22 +45,50 @@ function RegisterPage() {
       return;
     }
 
-    // Clear the form data after successful registration
-    setFormData({
-      username: '',
-      phoneNumber: '',
-      firstName: '',
-      middleName: '',
-      lastName: '',
-      suffix: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      agreeTerms: false,
-    });
+    try {
+      const response = await fetch('http://localhost:8081/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          phoneNumber,
+          firstName,
+          middleName,
+          lastName,
+          suffix,
+          email,
+          password
+        })
+      });
 
-    // Show the verification modal
-    setShowModal(true); 
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Registration successful!');
+        // Clear the form data after successful registration
+        setFormData({
+          username: '',
+          phoneNumber: '',
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          suffix: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+          agreeTerms: false,
+        });
+        // Show the verification modal
+        setShowModal(true);
+      } else {
+        alert(`Registration failed: ${data.error || 'Unknown error occurred'}`);
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      alert('Failed to register. Please try again later.');
+    }
   };
 
   return (
@@ -247,7 +275,7 @@ function RegisterPage() {
       </div>
 
       {/* Verification Modal */}
-      {showModal && <EmailVerificationModal onClose={() => setShowModal(false)} />}
+      {/* {showModal && <EmailVerificationModal onClose={() => setShowModal(false)} />} */}
     </div>
   )
 }
