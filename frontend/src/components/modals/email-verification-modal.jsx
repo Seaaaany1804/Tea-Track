@@ -72,13 +72,35 @@ function EmailVerificationModal({ email, userId, onClose }) {
 
   const handleInputChange = (e, index) => {
     const value = e.target.value;
+    const newCode = [...code];
+
+    // Handle backspace
+    if (e.nativeEvent.inputType === 'deleteContentBackward') {
+      newCode[index] = '';
+      setCode(newCode);
+      // Focus previous input if exists
+      if (index > 0) {
+        document.getElementById(`code-input-${index - 1}`).focus();
+      }
+      return;
+    }
+
+    // Handle number input
     if (!isNaN(value) && value.length <= 1) {
-      const newCode = [...code];
       newCode[index] = value;
       setCode(newCode);
-      if (index < code.length - 1) {
+      
+      // Auto-focus next input if exists
+      if (value && index < code.length - 1) {
         document.getElementById(`code-input-${index + 1}`).focus();
       }
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    // Handle backspace when input is empty
+    if (e.key === 'Backspace' && !code[index] && index > 0) {
+      document.getElementById(`code-input-${index - 1}`).focus();
     }
   };
 
@@ -169,6 +191,7 @@ function EmailVerificationModal({ email, userId, onClose }) {
               value={digit}
               maxLength="1"
               onChange={(e) => handleInputChange(e, index)}
+              onKeyDown={(e) => handleKeyDown(e, index)}
               className="w-12 h-12 text-center text-xl border border-[#E39E05] bg-transparent rounded-lg text-white"
             />
           ))}
