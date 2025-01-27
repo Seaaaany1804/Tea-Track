@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { MdEmail, MdLock } from 'react-icons/md'
 import { Link, useNavigate } from 'react-router-dom'
 import BgCircle from '../components/bg-circle'
+import EmailVerificationModal from '../components/modals/email-verification-modal'
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -10,6 +11,8 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [unverifiedUserId, setUnverifiedUserId] = useState(null);
 
   // Check if user is already logged in
   useEffect(() => {
@@ -33,6 +36,12 @@ function LoginPage() {
       );
 
       if (user) {
+        if (!user.is_verified) {
+          setUnverifiedUserId(user.id);
+          setShowVerificationModal(true);
+          return;
+        }
+        
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userId', user.id);
         navigate('/dashboard');
@@ -127,6 +136,18 @@ function LoginPage() {
           </div>
         </div>
       </div>
+
+      {/* Add Verification Modal */}
+      {showVerificationModal && (
+        <EmailVerificationModal 
+          email={email}
+          userId={unverifiedUserId}
+          onClose={() => {
+            setShowVerificationModal(false);
+            setError('');
+          }}
+        />
+      )}
     </div>
   )
 }
