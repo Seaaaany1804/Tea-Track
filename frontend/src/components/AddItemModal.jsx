@@ -1,44 +1,110 @@
-import React, { useState } from 'react';
-import { FaBarcode } from 'react-icons/fa';
+import React, { useEffect, useState } from "react";
+import { FaBarcode } from "react-icons/fa";
 
 function AddItemModal({ isOpen, closeModal }) {
-  const [category, setCategory] = useState('add-ons');
-  const [itemName, setItemName] = useState('');
-  const [price, setPrice] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [measurement, setMeasurement] = useState('');
-  const [imageLink, setImageLink] = useState('');
-  const [barcode, setBarcode] = useState('');
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const response = await fetch("http://localhost:8081/product-categories");
+      const categories = await response.json();
+      setCategories(categories);
+    };
+
+    fetchCategories();
+  }, []);
+
+  const [formData, setFormData] = useState({
+    name: "",
+    sku: "",
+    price: 0,
+    stocks: 0,
+    category_id: 1,
+    measurement: "",
+    image_link: "",
+    barcode: "",
+  });
+
+  const handleFormChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleBarcodeGeneration = () => {
     const generatedBarcode = `ITEM-${Math.random().toString(36).substr(2, 9)}`; // Simple random barcode generation
-    setBarcode(generatedBarcode);
+    setFormData({ ...formData, barcode: generatedBarcode, sku: categories[formData.category_id-1].code + "-" + generatedBarcode.split('-')[1] });
   };
 
-  const handleSubmit = () => {
-    // Add logic to save the new item (e.g., send to backend or add to state)
-    console.log({ category, itemName, price, quantity, measurement, imageLink, barcode });
-    closeModal(); // Close the modal after submitting
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const {
+      sku,
+      name,
+      price,
+      stocks,
+      category_id,
+      measurement,
+      image_link,
+      barcode,
+    } = formData;
+
+
+    console.log(formData);
+
+    if (
+      !name ||
+      !sku ||
+      !price ||
+      !stocks ||
+      !category_id ||
+      !measurement ||
+      !image_link ||
+      !barcode
+    ) {
+      alert("Please fill out all required fields.");
+      return; 
+    }
+
+    try {
+      const response = await fetch("http://localhost:8081/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        console.log("Item added successfully");
+        closeModal(); // Close the modal after submitting
+      } else {
+        console.error("Failed to add item");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
 
   return (
     isOpen && (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
         <div className="bg-white p-6 rounded-lg shadow-lg w-[500px]">
-          <h2 className="text-2xl font-bold text-[#14463A] mb-4">Add New Item</h2>
+          <h2 className="text-2xl font-bold text-[#14463A] mb-4">
+            Add New Item
+          </h2>
 
           <form>
             {/* Category Dropdown */}
             <div className="mb-4">
               <label className="block text-gray-700">Category</label>
               <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
+                name="category_id"
+                value={formData.category_id}
+                onChange={handleFormChange}
                 className="w-full p-2 border rounded-md text-black"
               >
-                <option value="add-ons">Add-Ons</option>
-                <option value="main">Main</option>
-                <option value="none">None</option>
+                {categories.map((category) => (
+                  <option value={category.id}>{category.name}</option>
+                ))}
               </select>
             </div>
 
@@ -46,10 +112,11 @@ function AddItemModal({ isOpen, closeModal }) {
             <div className="mb-4">
               <label className="block text-gray-700">Item Name</label>
               <input
+                name="name"
                 type="text"
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-                className="w-full p-2 border rounded-md"
+                value={formData.name}
+                onChange={handleFormChange}
+                className="w-full p-2 border rounded-md text-black"
               />
             </div>
 
@@ -58,20 +125,22 @@ function AddItemModal({ isOpen, closeModal }) {
               <div className="w-full">
                 <label className="block text-gray-700">Price</label>
                 <input
-                  type="text"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="w-full p-2 border rounded-md"
+                  name="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={handleFormChange}
+                  className="w-full p-2 border rounded-md text-black"
                 />
               </div>
 
               <div className="w-full">
-                <label className="block text-gray-700">Quantity</label>
+                <label className="block text-gray-700">Stock</label>
                 <input
+                  name="stocks"
                   type="number"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full p-2 border rounded-md"
+                  value={formData.stocks}
+                  onChange={handleFormChange}
+                  className="w-full p-2 border rounded-md text-black"
                 />
               </div>
             </div>
@@ -80,10 +149,11 @@ function AddItemModal({ isOpen, closeModal }) {
             <div className="mb-4">
               <label className="block text-gray-700">Measurement</label>
               <input
+                name="measurement"
                 type="text"
-                value={measurement}
-                onChange={(e) => setMeasurement(e.target.value)}
-                className="w-full p-2 border rounded-md"
+                value={formData.measurement}
+                onChange={handleFormChange}
+                className="w-full p-2 border rounded-md text-black"
               />
             </div>
 
@@ -91,10 +161,11 @@ function AddItemModal({ isOpen, closeModal }) {
             <div className="mb-4">
               <label className="block text-gray-700">Image Link</label>
               <input
+                name="image_link"
                 type="text"
-                value={imageLink}
-                onChange={(e) => setImageLink(e.target.value)}
-                className="w-full p-2 border rounded-md"
+                value={formData.image_link}
+                onChange={handleFormChange}
+                className="w-full p-2 border rounded-md text-black"
               />
             </div>
 
@@ -102,6 +173,7 @@ function AddItemModal({ isOpen, closeModal }) {
             <div className="mb-4 flex justify-between items-center">
               <label className="block text-gray-700">Barcode</label>
               <button
+                name="barcode"
                 type="button"
                 onClick={handleBarcodeGeneration}
                 className="bg-[#14463A] text-white px-4 py-2 rounded-md hover:bg-green-800"
@@ -111,7 +183,7 @@ function AddItemModal({ isOpen, closeModal }) {
             </div>
 
             {/* Display Generated Barcode */}
-            {barcode && (
+            {formData.barcode && (
               <div className="mb-4">
                 <div className="flex justify-end p-2 border rounded-md text-center">
                   <FaBarcode className="text-[30px] text-[#14463A]" />
