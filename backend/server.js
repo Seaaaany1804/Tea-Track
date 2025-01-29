@@ -32,10 +32,37 @@ app.get("/", (req, res) => {
   return res.json("From Backend Side");
 });
 
-// GET all users
+// GET route for all users
 app.get("/users", (req, res) => {
   const sql = "SELECT * FROM USERS";
   db.query(sql, (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
+
+// GET route for all categories
+app.get("/product-categories", (req, res) => {
+  const sql = "SELECT * FROM PRODUCT_CATEGORIES";
+  db.query(sql, (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
+// GET route for all products
+app.get("/products", (req, res) => {
+  const sql = "SELECT * FROM PRODUCTS";
+  db.query(sql, (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
+
+// POST route for adding a product
+app.post("/products", (req, res) => {
+  const { name, sku, price, stocks, category_id, measurement, image_link, barcode } = req.body;
+  const sql = "INSERT INTO PRODUCTS (name, sku, price, stocks, category_id, measurement, image_link, barcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+  db.query(sql, [name, sku, price, stocks, category_id, measurement, image_link, barcode], (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
   });
