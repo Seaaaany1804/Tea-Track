@@ -1,0 +1,12 @@
+CREATE TABLE products (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  sku TEXT,
+  name VARCHAR(255) NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  stocks INT DEFAULT 0,
+  category_id INT,
+  measurement VARCHAR(255),
+  barcode TEXT,
+  image_link TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

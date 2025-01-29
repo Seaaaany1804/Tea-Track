@@ -1,0 +1,8 @@
+CREATE TABLE orders (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  client_id INT,
+  total_amount DECIMAL(10,2),
+  email_address VARCHAR(255),
+  status ENUM('Paid', 'Unpaid') DEFAULT 'Unpaid', 
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
