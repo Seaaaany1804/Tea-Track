@@ -10,10 +10,10 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const db = mysql.createConnection({
-  host: process.env.HOST,
-  user: process.env.USER,
-  password: process.env.PASSWORD,
-  database: process.env.DATABASE,
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
 // Email configuration
@@ -34,7 +34,7 @@ app.get("/", (req, res) => {
 
 // GET route for all users
 app.get("/users", (req, res) => {
-  const sql = "SELECT * FROM USERS";
+  const sql = "SELECT * FROM users";
   db.query(sql, (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
@@ -43,7 +43,7 @@ app.get("/users", (req, res) => {
 
 // GET route for all categories
 app.get("/product-categories", (req, res) => {
-  const sql = "SELECT * FROM PRODUCT_CATEGORIES";
+  const sql = "SELECT * FROM product_categories";
   db.query(sql, (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
@@ -51,7 +51,7 @@ app.get("/product-categories", (req, res) => {
 });
 // GET route for all products
 app.get("/products", (req, res) => {
-  const sql = "SELECT * FROM PRODUCTS";
+  const sql = "SELECT * FROM products";
   db.query(sql, (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
@@ -61,7 +61,7 @@ app.get("/products", (req, res) => {
 // POST route for adding a product
 app.post("/products", (req, res) => {
   const { name, sku, price, stocks, category_id, measurement, image_link, barcode } = req.body;
-  const sql = "INSERT INTO PRODUCTS (name, sku, price, stocks, category_id, measurement, image_link, barcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+  const sql = "INSERT INTO products (name, sku, price, stocks, category_id, measurement, image_link, barcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
   db.query(sql, [name, sku, price, stocks, category_id, measurement, image_link, barcode], (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
