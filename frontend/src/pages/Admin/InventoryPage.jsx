@@ -3,8 +3,11 @@ import Navbar from '../../components/NavBar';
 import { FaAngleLeft, FaAngleRight, FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
 import { MdSort } from "react-icons/md";
 import AddItemModal from '../../components/AddItemModal';
-
+import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
+import EditItemModal from "../../components/modals/EditItemModal";
 function InventoryPage() {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
   const itemsPerPage = 10;
@@ -38,6 +41,15 @@ function InventoryPage() {
     setIsModalOpen(false);
   };
 
+  const openEditModal = (item) => {
+    setSelectedItem(item);
+    setIsEditModalOpen(true);
+  };
+  
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
   return (
     <div className="bg-[#14463A] min-h-screen text-white">
       <Navbar />
@@ -67,8 +79,49 @@ function InventoryPage() {
               </div>
             </div>
 
-            {/* Inventory Table */}
-            {/* Your existing table code goes here... */}
+            <div class="p-4">
+              <hr class="mb-4" />
+
+              <div class="overflow-x-auto">
+                <table class="min-w-full shadow-md">
+                  <thead class="">
+                    <tr>
+                      <th class="px-4 py-2">SKU</th>
+                      <th class="px-4 py-2">Item Name</th>
+                      <th class="px-4 py-2">Category</th>
+                      <th class="px-4 py-2">Price</th>
+                      <th class="px-4 py-2">Measurement</th>
+                      <th class="px-4 py-2">Expires In</th>
+                      <th class="px-4 py-2">Stocks</th>
+                      <th class="px-4 py-2">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="text-center">
+                      <td class="px-4 py-2">ADNS-1E1OUF40HB</td>
+                      <td class="px-4 py-2">Boba Pearls</td>
+                      <td class="px-4 py-2">ADD-ONS</td>
+                      <td class="px-4 py-2">₱100</td>
+                      <td class="px-4 py-2">500ml</td>
+                      <td class="px-4 py-2">January 26, 2025</td>
+                      <td class="px-4 py-2">50</td>
+                      <td class="px-4 py-2">
+                      <div className='space-x-2'>
+                      <button className="text-blue-500 hover:text-blue-700"
+                        onClick={() => openEditModal(inventoryData[0])}
+                      >
+                        <AiOutlineEdit size={30} />
+                      </button>
+                        <button className="text-red-500 hover:text-red-700">
+                          <AiOutlineDelete size={30} />
+                        </button>
+                      </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
           </div>
         </div>
@@ -76,6 +129,13 @@ function InventoryPage() {
 
       {/* Add Item Modal */}
       <AddItemModal isOpen={isModalOpen} closeModal={closeModal} />
+
+      <EditItemModal
+      isOpen={isEditModalOpen}
+      closeModal={closeEditModal}
+      item={selectedItem || { itemName: "", category: "", price: "", stocks: 0 }}
+      onSave={(updatedItem) => console.log("Updated Item:", updatedItem)} // Replace with API call
+    />
     </div>
   );
 }
