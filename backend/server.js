@@ -28,6 +28,29 @@ const transporter = nodemailer.createTransport({
 // Store verification codes temporarily (in memory)
 const verificationCodes = new Map();
 
+const handleDisconnect = () => {
+  db.connect((err) => {
+    if (err) {
+      console.error('Error connecting to the database:', err);
+      setTimeout(handleDisconnect, 2000); // Try to reconnect after 2 seconds
+    } else {
+      console.log('Connected to the database.');
+    }
+  });
+
+  db.on('error', (err) => {
+    console.error('Database error:', err);
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      handleDisconnect(); // Reconnect if connection is lost
+    } else {
+      throw err; // Throw other errors
+    }
+  });
+};
+
+// Initialize the database connection
+handleDisconnect();
+
 app.get("/", (req, res) => {
   return res.json("From Backend Side");
 });
