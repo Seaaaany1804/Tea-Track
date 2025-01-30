@@ -1,21 +1,58 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaBarcode } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function EditItemModal({ isOpen, closeModal, item }) {
   const [formData, setFormData] = useState({
-    name: item?.name || "",
-    sku: item?.sku || "",
-    price: item?.price || 0,
-    stocks: item?.stocks || 0,
-    category_id: item?.category_id || 1,
-    measurement: item?.measurement || "",
-    image_link: item?.image_link || "",
-    barcode: item?.barcode || "",
-    expiration_date: item?.expiration_date || "",
+    id: 0,
+    name: "",
+    sku: "",
+    price: 0,
+    stocks: 0,
+    measurement: "",
+    image_link: "",
+    barcode: ""
   });
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (item) {
+      setFormData({
+        id: item.id || 0,
+        name: item.name || "",
+        sku: item.sku || "",
+        price: item.price || 0,
+        stocks: item.stocks || 0,
+        measurement: item.measurement || "",
+        image_link: item.image_link || "",
+        barcode: item.barcode || ""
+      });
+    }
+  }, [item]);
+
+  console.log(formData);
 
   const handleFormChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = () => {
+    const updateItem = async() => {
+      const response = await fetch(`http://localhost:8081/products/${formData.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+
+      if (response.ok) {
+        closeModal();
+        navigate("/inventory");
+      }
+    };
+    updateItem();
   };
 
   return (
@@ -24,7 +61,7 @@ function EditItemModal({ isOpen, closeModal, item }) {
         <div className="bg-white p-6 rounded-lg shadow-lg w-[500px]">
           <h2 className="text-2xl font-bold text-[#14463A] mb-4">Edit Item</h2>
 
-          <form>
+          <form onSubmit={handleSave}>
             {/* Item Name */}
             <div className="mb-4">
               <label className="block text-gray-700">Item Name</label>
@@ -86,18 +123,6 @@ function EditItemModal({ isOpen, closeModal, item }) {
               />
             </div>
 
-            {/* Expiration Date */}
-            <div className="mb-4">
-              <label className="block text-gray-700">Expiration Date</label>
-              <input
-                name="expiration_date"
-                type="date"
-                value={formData.expiration_date}
-                onChange={handleFormChange}
-                className="w-full p-2 border rounded-md text-black"
-              />
-            </div>
-
             {/* SKU and Barcode (Read-Only) */}
             <div className="mb-4">
               <label className="block text-gray-700">SKU</label>
@@ -127,7 +152,7 @@ function EditItemModal({ isOpen, closeModal, item }) {
                 Cancel
               </button>
               <button
-                type="button"
+                type="submit"
                 className="bg-[#14463A] text-white px-4 py-2 rounded-md hover:bg-green-800"
               >
                 Save Changes

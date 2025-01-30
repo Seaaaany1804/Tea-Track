@@ -4,3 +4,7 @@ CREATE TABLE product_categories (
   code VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+INSERT INTO `product_categories`(`name`, `code`) VALUES ('Add-Ons','ADNS');
+INSERT INTO `product_categories`(`name`, `code`) VALUES ('Main','MPRD');
+INSERT INTO `product_categories`(`name`, `code`) VALUES ('None','NA');

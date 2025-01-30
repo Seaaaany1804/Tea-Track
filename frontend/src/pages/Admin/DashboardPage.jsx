@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../../components/NavBar';
 import { FaBoxOpen, FaTruck, FaDollarSign } from 'react-icons/fa';
 import { MdOutlineInventory, MdAddCircleOutline, MdOutlineRemoveShoppingCart, MdNotificationsActive } from 'react-icons/md';
 import { Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
+import { useNavigate } from 'react-router-dom';
 
 Chart.register(...registerables);
 
@@ -27,6 +28,15 @@ const DashboardPage = () => {
         responsive: true,
         maintainAspectRatio: false
     };
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const isLoggedIn = localStorage.getItem('isLoggedIn');
+        if (!isLoggedIn) {
+            navigate('/login');
+        }
+    }, [navigate]);
 
     return (
         <div className="bg-gray-100 min-h-screen text-gray-900">

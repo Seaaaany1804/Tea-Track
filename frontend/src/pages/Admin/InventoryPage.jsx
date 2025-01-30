@@ -1,37 +1,52 @@
-import React, { useState } from 'react';
-import Navbar from '../../components/NavBar';
-import { FaAngleLeft, FaAngleRight, FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
+import React, { useEffect, useState } from "react";
+import Navbar from "../../components/NavBar";
+import {
+  FaAngleLeft,
+  FaAngleRight,
+  FaRegEdit,
+  FaRegTrashAlt,
+} from "react-icons/fa";
 import { MdSort } from "react-icons/md";
-import AddItemModal from '../../components/AddItemModal';
+import AddItemModal from "../../components/AddItemModal";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import EditItemModal from "../../components/modals/EditItemModal";
+import DeleteItemModal from "../../components/modals/DeleteItemModal";
+import { useNavigate } from "react-router-dom";
 function InventoryPage() {
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    if (!isLoggedIn) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
-  const itemsPerPage = 10;
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const inventoryData = Array(40).fill({
-    sku: "ADNS-1E1OUF40HB",
-    itemName: "Boba Pearls",
-    category: "ADD-ONS",
-    price: "₱150.00",
-    measurement: "1KG/pack",
-    stocks: 90
-  });
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteItem, setDeleteItem] = useState(null);
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = inventoryData.slice(indexOfFirstItem, indexOfLastItem);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-  const totalPages = Math.ceil(inventoryData.length / itemsPerPage);
-
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
+  useEffect(() => {
+    const getProducts = async () => {
+      const response = await fetch("http://localhost:8081/products");
+      const data = await response.json();
+      setProducts(data);
+    };
+    const getCategories = async () => {
+      const response = await fetch("http://localhost:8081/product-categories");
+      const data = await response.json();
+      setCategories(data);
+    };
+    getProducts();
+    getCategories();
+  }, []);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -45,16 +60,40 @@ function InventoryPage() {
     setSelectedItem(item);
     setIsEditModalOpen(true);
   };
-  
+
   const closeEditModal = () => {
     setIsEditModalOpen(false);
+  };
+
+  const openDeleteModal = (item) => {
+    setDeleteItem(item);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:8081/products/${id}`, {
+        method: "DELETE",
+      });
+  
+      if (response.ok) {
+        setProducts(products.filter(product => product.id !== id));
+      } else {
+        console.error("Failed to delete the product.");
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
   };
 
   return (
     <div className="bg-[#14463A] min-h-screen text-white">
       <Navbar />
       <div className="p-8 px-40">
-
         {/* Inventory Table */}
         <div className="px-6 bg-white rounded-lg shadow-lg">
           <div className="w-full text-black">
@@ -72,9 +111,11 @@ function InventoryPage() {
                     + Add Item
                   </button>
                 </div>
-                <div className='flex gap-2 items-center justify-end'>
-                  <MdSort className='text-xl' />
-                  <h1 className='font-semibold font-[POPPINS] text-xl'>Sort By</h1>
+                <div className="flex gap-2 items-center justify-end">
+                  <MdSort className="text-xl" />
+                  <h1 className="font-semibold font-[POPPINS] text-xl">
+                    Sort By
+                  </h1>
                 </div>
               </div>
             </div>
@@ -86,43 +127,57 @@ function InventoryPage() {
                 <table class="min-w-full shadow-md">
                   <thead class="">
                     <tr>
+                      <th class="px-4 py-2">Image</th>
                       <th class="px-4 py-2">SKU</th>
                       <th class="px-4 py-2">Item Name</th>
                       <th class="px-4 py-2">Category</th>
                       <th class="px-4 py-2">Price</th>
                       <th class="px-4 py-2">Measurement</th>
-                      <th class="px-4 py-2">Expires In</th>
                       <th class="px-4 py-2">Stocks</th>
                       <th class="px-4 py-2">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="text-center">
-                      <td class="px-4 py-2">ADNS-1E1OUF40HB</td>
-                      <td class="px-4 py-2">Boba Pearls</td>
-                      <td class="px-4 py-2">ADD-ONS</td>
-                      <td class="px-4 py-2">₱100</td>
-                      <td class="px-4 py-2">500ml</td>
-                      <td class="px-4 py-2">January 26, 2025</td>
-                      <td class="px-4 py-2">50</td>
-                      <td class="px-4 py-2">
-                      <div className='space-x-2'>
-                      <button className="text-blue-500 hover:text-blue-700"
-                        onClick={() => openEditModal(inventoryData[0])}
-                      >
-                        <AiOutlineEdit size={30} />
-                      </button>
-                        <button className="text-red-500 hover:text-red-700">
-                          <AiOutlineDelete size={30} />
-                        </button>
-                      </div>
-                      </td>
-                    </tr>
+                    {products.map((product) => {
+                      return (
+                        <tr class="text-center">
+                          <td class="px-4 py-2 flex items-center justify-center">
+                            <img
+                              src={product.image_link}
+                              alt="error"
+                              className="w-16 h-16 object-contain"
+                            />
+                          </td>
+                          <td class="px-4 py-2">{product.sku}</td>
+                          <td class="px-4 py-2">{product.name}</td>
+                          <td class="px-4 py-2">{categories.find(category => category.id === product.category_id)?.name}</td>
+                          <td class="px-4 py-2">₱ {product.price}</td>
+                          <td class="px-4 py-2">{product.measurement}</td>
+                          <td class="px-4 py-2">{product.stocks}</td>
+                          <td class="px-4 py-2">
+                            <div className="space-x-2">
+                              <button
+                                className="text-blue-500 hover:text-blue-700"
+                                onClick={() => openEditModal(product)}
+                              >
+                                <AiOutlineEdit size={30} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => openDeleteModal(product)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <AiOutlineDelete size={30} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -131,11 +186,18 @@ function InventoryPage() {
       <AddItemModal isOpen={isModalOpen} closeModal={closeModal} />
 
       <EditItemModal
-      isOpen={isEditModalOpen}
-      closeModal={closeEditModal}
-      item={selectedItem || { itemName: "", category: "", price: "", stocks: 0 }}
-      onSave={(updatedItem) => console.log("Updated Item:", updatedItem)} // Replace with API call
-    />
+        isOpen={isEditModalOpen}
+        closeModal={closeEditModal}
+        item={selectedItem}
+        onSave={(updatedItem) => console.log("Updated Item:", updatedItem)} // Replace with API call
+      />
+
+      <DeleteItemModal
+        isOpen={isDeleteModalOpen}
+        closeModal={closeDeleteModal}
+        item={deleteItem}
+        handleDelete={handleDelete}
+      />
     </div>
   );
 }

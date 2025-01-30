@@ -68,6 +68,27 @@ app.post("/products", (req, res) => {
   });
 });
 
+// PUT route for updating a product
+app.put("/products/:id", (req, res) => {
+  const { id } = req.params;
+  const { name, sku, price, stocks, measurement, image_link, barcode } = req.body;
+  const sql = "UPDATE products SET name = ?, sku = ?, price = ?, stocks = ?, measurement = ?, image_link = ?, barcode = ? WHERE id = ?";
+  db.query(sql, [name, sku, price, stocks, measurement, image_link, barcode, id], (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
+
+// DELETE route for deleting a product
+app.delete("/products/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "DELETE FROM products WHERE id = ?";
+  db.query(sql, [id], (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
+
 // POST route to add a user
 app.post("/users", (req, res) => {
   const { 

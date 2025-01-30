@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaBarcode } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function AddItemModal({ isOpen, closeModal }) {
   const [categories, setCategories] = useState([]);
@@ -24,6 +25,8 @@ function AddItemModal({ isOpen, closeModal }) {
     image_link: "",
     barcode: "",
   });
+
+  const navigate = useNavigate();
 
   const handleFormChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -76,6 +79,7 @@ function AddItemModal({ isOpen, closeModal }) {
       if (response.ok) {
         console.log("Item added successfully");
         closeModal(); // Close the modal after submitting
+        window.location.reload();
       } else {
         console.error("Failed to add item");
       }
