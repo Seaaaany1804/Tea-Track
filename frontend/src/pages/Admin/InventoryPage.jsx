@@ -86,6 +86,7 @@ function InventoryPage() {
                 <table class="min-w-full shadow-md">
                   <thead class="">
                     <tr>
+                      <th class="px-4 py-2">Image</th>
                       <th class="px-4 py-2">SKU</th>
                       <th class="px-4 py-2">Item Name</th>
                       <th class="px-4 py-2">Category</th>
@@ -97,27 +98,35 @@ function InventoryPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="text-center">
-                      <td class="px-4 py-2">ADNS-1E1OUF40HB</td>
-                      <td class="px-4 py-2">Boba Pearls</td>
-                      <td class="px-4 py-2">ADD-ONS</td>
-                      <td class="px-4 py-2">₱100</td>
-                      <td class="px-4 py-2">500ml</td>
-                      <td class="px-4 py-2">January 26, 2025</td>
-                      <td class="px-4 py-2">50</td>
-                      <td class="px-4 py-2">
-                      <div className='space-x-2'>
-                      <button className="text-blue-500 hover:text-blue-700"
-                        onClick={() => openEditModal(inventoryData[0])}
-                      >
-                        <AiOutlineEdit size={30} />
-                      </button>
+                  <tr class="text-center">
+                    <td class="px-4 py-2 flex items-center justify-center">
+                      <img
+                        src="/assets/images/bobapearl.png"
+                        alt="error"
+                        className="w-16 h-16 object-contain"
+                      />
+                    </td>
+                    <td class="px-4 py-2">ADNS-1E1OUF40HB</td>
+                    <td class="px-4 py-2">Boba Pearls</td>
+                    <td class="px-4 py-2">ADD-ONS</td>
+                    <td class="px-4 py-2">₱100</td>
+                    <td class="px-4 py-2">500ml</td>
+                    <td class="px-4 py-2">January 26, 2025</td>
+                    <td class="px-4 py-2">50</td>
+                    <td class="px-4 py-2">
+                      <div className="space-x-2">
+                        <button
+                          className="text-blue-500 hover:text-blue-700"
+                          onClick={() => openEditModal(inventoryData[0])}
+                        >
+                          <AiOutlineEdit size={30} />
+                        </button>
                         <button className="text-red-500 hover:text-red-700">
                           <AiOutlineDelete size={30} />
                         </button>
                       </div>
-                      </td>
-                    </tr>
+                    </td>
+                  </tr>
                   </tbody>
                 </table>
               </div>

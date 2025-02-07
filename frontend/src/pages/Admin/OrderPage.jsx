@@ -6,10 +6,13 @@ import { LuArchiveRestore } from "react-icons/lu";
 import { MdSort } from "react-icons/md";
 
 // Function to generate a random status
-const getRandomStatus = () => (Math.random() > 0.5 ? "Paid" : "Unpaid");
+const getRandomStatus = () => (Math.random() > 0.5 ? "Out for Delivery" : "Delivered");
 
 function OrderPage() {
   const [currentPage, setCurrentPage] = useState(1);
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const itemsPerPage = 10;
 
   const orderData = Array(20).fill().map(() => ({
@@ -33,6 +36,26 @@ function OrderPage() {
     }
   };
 
+  const handleOpenDeliveryModal = (order) => {
+    setSelectedOrder(order);
+    setShowDeliveryModal(true);
+  };
+
+  const handleOpenArchiveModal = (order) => {
+    setSelectedOrder(order);
+    setShowArchiveModal(true);
+  };
+
+  const handleConfirmDelivery = () => {
+    console.log(`Order ${selectedOrder?.orderId} is out for delivery.`);
+    setShowDeliveryModal(false);
+  };
+
+  const handleConfirmArchive = () => {
+    console.log(`Order ${selectedOrder?.orderId} is already delivered.`);
+    setShowArchiveModal(false);
+  };
+
   return (
     <div className="bg-[#14463A] min-h-screen text-white">
       <Navbar />
@@ -44,17 +67,18 @@ function OrderPage() {
             <div>
               <div className="py-3 flex justify-between items-center">
                 <div>
-                    <h1 className="py-4 text-[#14463A] text-start text-3xl font-bold">
-                        Orders
-                    </h1>
+                  <h1 className="py-4 text-[#14463A] text-start text-3xl font-bold">
+                    Orders
+                  </h1>
                 </div>
                 <div className='flex gap-2 items-center mt-8 justify-end'>
                   <MdSort className='text-xl' />
-                <h1 className='font-semibold font-[POPPINS] text-xl'>Sort By</h1>
+                  <h1 className='font-semibold font-[POPPINS] text-xl text-[#14463A]'>Sort By</h1>
+                </div>
               </div>
             </div>
           </div>
-            <table className='w-full'>
+          <table className='w-full'>
             <thead className="bg-white text-[#14463A]">
               {/* Table Headers */}
               <tr className="text-center font-bold border-t-2">
@@ -70,7 +94,7 @@ function OrderPage() {
             </thead>
 
             {/* Body Section */}
-            <tbody className="text-center font-semibold">
+            <tbody className="text-center font-semibold text-black">
               {currentItems.map((item, index) => (
                 <tr
                   key={index}
@@ -84,14 +108,20 @@ function OrderPage() {
                   <td className="py-3 px-4">{item.quantity}</td>
                   <td className="py-3 px-4">{item.timestamp}</td>
                   <td className="py-3 px-4">{item.address}</td>
-                  <td className={`py-3 px-4 ${item.status === 'Paid' ? 'text-green-600' : 'text-red-600'}`}>
+                  <td className={`py-3 px-4 ${item.status === 'Delivered' ? 'text-green-600' : 'text-red-600'}`}>
                     {item.status}
                   </td>
                   <td className="py-3 px-4 flex justify-center space-x-3">
-                    <button className="text-black hover:text-black">
+                    <button
+                      className="text-black hover:text-black"
+                      onClick={() => handleOpenDeliveryModal(item)}
+                    >
                       <TbTruckDelivery className="text-2xl" />
                     </button>
-                    <button className="text-black hover:text-green-400">
+                    <button
+                      className="text-black hover:text-green-400"
+                      onClick={() => handleOpenArchiveModal(item)}
+                    >
                       <LuArchiveRestore className="text-2xl" />
                     </button>
                   </td>
@@ -114,7 +144,7 @@ function OrderPage() {
                     </button>
 
                     {/* Page Numbers */}
-                    <span className="text-lg font-semibold font-[POPPINS]">
+                    <span className="text-lg font-semibold font-[POPPINS] text-[#14463A]">
                       Page {currentPage} of {totalPages}
                     </span>
 
@@ -133,8 +163,35 @@ function OrderPage() {
           </table>
         </div>
       </div>
+
+      {/* Confirm Out for Delivery Modal */}
+      {showDeliveryModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[400px] text-center">
+            <h2 className="text-xl font-bold text-[#14463A]">Confirm Delivery</h2>
+            <p className="text-black mt-3">Are you sure this item is out for delivery?</p>
+            <div className="mt-6 flex justify-center gap-4">
+            <button className="bg-gray-400 text-white px-4 py-2 rounded-lg  hover:bg-green-700" onClick={handleConfirmDelivery}>Confirm</button>
+            <button className="bg-[#14463A] text-white px-4 py-2 rounded-lg hover:bg-gray-500" onClick={() => setShowDeliveryModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Already Delivered Modal */}
+      {showArchiveModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[400px] text-center">
+            <h2 className="text-xl font-bold text-[#14463A]">Confirm Delivery</h2>
+            <p className="text-black mt-3">Are you sure this item is already delivered?</p>
+            <div className="mt-6 flex justify-center gap-4">
+              <button className="bg-[#14463A] text-white px-4 py-2 rounded-lg hover:bg-green-700" onClick={handleConfirmArchive}>Confirm</button>
+              <button className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500" onClick={() => setShowArchiveModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-</div>
   );
 }
 
