@@ -28,6 +28,29 @@ const transporter = nodemailer.createTransport({
 // Store verification codes temporarily (in memory)
 const verificationCodes = new Map();
 
+const handleDisconnect = () => {
+  db.connect((err) => {
+    if (err) {
+      console.error('Error connecting to the database:', err);
+      setTimeout(handleDisconnect, 2000); // Try to reconnect after 2 seconds
+    } else {
+      console.log('Connected to the database.');
+    }
+  });
+
+  db.on('error', (err) => {
+    console.error('Database error:', err);
+    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+      handleDisconnect(); // Reconnect if connection is lost
+    } else {
+      throw err; // Throw other errors
+    }
+  });
+};
+
+// Initialize the database connection
+handleDisconnect();
+
 app.get("/", (req, res) => {
   return res.json("From Backend Side");
 });
@@ -63,6 +86,27 @@ app.post("/products", (req, res) => {
   const { name, sku, price, stocks, category_id, measurement, image_link, barcode } = req.body;
   const sql = "INSERT INTO products (name, sku, price, stocks, category_id, measurement, image_link, barcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
   db.query(sql, [name, sku, price, stocks, category_id, measurement, image_link, barcode], (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
+
+// PUT route for updating a product
+app.put("/products/:id", (req, res) => {
+  const { id } = req.params;
+  const { name, sku, price, stocks, measurement, image_link, barcode } = req.body;
+  const sql = "UPDATE products SET name = ?, sku = ?, price = ?, stocks = ?, measurement = ?, image_link = ?, barcode = ? WHERE id = ?";
+  db.query(sql, [name, sku, price, stocks, measurement, image_link, barcode, id], (err, data) => {
+    if (err) return res.json(err);
+    return res.json(data);
+  });
+});
+
+// DELETE route for deleting a product
+app.delete("/products/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "DELETE FROM products WHERE id = ?";
+  db.query(sql, [id], (err, data) => {
     if (err) return res.json(err);
     return res.json(data);
   });
