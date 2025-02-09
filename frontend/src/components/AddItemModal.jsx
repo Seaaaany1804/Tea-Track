@@ -34,7 +34,7 @@ function AddItemModal({ isOpen, closeModal }) {
 
   const handleBarcodeGeneration = () => {
     const generatedBarcode = `ITEM-${Math.random().toString(36).substr(2, 9)}`; // Simple random barcode generation
-    setFormData({ ...formData, barcode: generatedBarcode, sku: categories[formData.category_id-1].code + "-" + generatedBarcode.split('-')[1] });
+    setFormData({ ...formData, barcode: generatedBarcode, sku: categories[formData.category_id - 1].code + "-" + generatedBarcode.split('-')[1] });
   };
 
   const handleSubmit = async (e) => {
@@ -64,7 +64,7 @@ function AddItemModal({ isOpen, closeModal }) {
       !barcode
     ) {
       alert("Please fill out all required fields.");
-      return; 
+      return;
     }
 
     try {
@@ -77,9 +77,25 @@ function AddItemModal({ isOpen, closeModal }) {
       });
 
       if (response.ok) {
-        console.log("Item added successfully");
-        closeModal(); // Close the modal after submitting
-        window.location.reload();
+        try {
+          const response = await fetch("http://localhost:8081/logs", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              description: `Added: ${name}`,
+              action: "Add Item",
+            }),
+          });
+          if (response.ok) {
+            console.log("Item added successfully");
+            closeModal(); // Close the modal after submitting
+            window.location.reload();
+          }
+        } catch (error) {
+          console.error("Error submitting log:", error);
+        }
       } else {
         console.error("Failed to add item");
       }

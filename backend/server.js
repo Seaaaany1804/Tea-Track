@@ -9,150 +9,103 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const db = mysql.createConnection({
+// Use a connection pool to manage MySQL connections automatically
+const db = mysql.createPool({
+  connectionLimit: 10, // Adjust as needed
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  database: process.env.DB_NAME
 });
 
 // Email configuration
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER,     // Your Gmail address
-    pass: process.env.EMAIL_APP_PASSWORD  // Your Gmail app password
+    user: process.env.EMAIL_USER,     
+    pass: process.env.EMAIL_APP_PASSWORD  
   }
 });
-
-// Store verification codes temporarily (in memory)
-const verificationCodes = new Map();
-
-const handleDisconnect = () => {
-  db.connect((err) => {
-    if (err) {
-      console.error('Error connecting to the database:', err);
-      setTimeout(handleDisconnect, 2000); // Try to reconnect after 2 seconds
-    } else {
-      console.log('Connected to the database.');
-    }
-  });
-
-  db.on('error', (err) => {
-    console.error('Database error:', err);
-    if (err.code === 'PROTOCOL_CONNECTION_LOST') {
-      handleDisconnect(); // Reconnect if connection is lost
-    } else {
-      throw err; // Throw other errors
-    }
-  });
-};
-
-// Initialize the database connection
-handleDisconnect();
 
 app.get("/", (req, res) => {
   return res.json("From Backend Side");
 });
 
-// GET route for all users
+// Helper function to execute queries safely
+const executeQuery = (sql, values, res) => {
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error("Database connection error:", err);
+      return res.status(500).json({ error: "Database connection error" });
+    }
+    
+    connection.query(sql, values, (queryErr, data) => {
+      connection.release(); // Release the connection back to the pool
+      
+      if (queryErr) {
+        console.error("Database query error:", queryErr);
+        return res.status(500).json({ error: "Database query error" });
+      }
+      
+      res.json(data);
+    });
+  });
+};
+
+// ------------------ GET ROUTES ------------------- //
 app.get("/users", (req, res) => {
-  const sql = "SELECT * FROM users";
-  db.query(sql, (err, data) => {
-    if (err) return res.json(err);
-    return res.json(data);
-  });
+  executeQuery("SELECT * FROM users", [], res);
 });
-
-// GET route for all categories
 app.get("/product-categories", (req, res) => {
-  const sql = "SELECT * FROM product_categories";
-  db.query(sql, (err, data) => {
-    if (err) return res.json(err);
-    return res.json(data);
-  });
+  executeQuery("SELECT * FROM product_categories", [], res);
 });
-// GET route for all products
 app.get("/products", (req, res) => {
-  const sql = "SELECT * FROM products";
-  db.query(sql, (err, data) => {
-    if (err) return res.json(err);
-    return res.json(data);
-  });
+  executeQuery("SELECT * FROM products", [], res);
+});
+app.get("/logs", (req, res) => {
+  executeQuery("SELECT * FROM logs", [], res);
 });
 
-// POST route for adding a product
+// ------------------ POST ROUTES ------------------- //
 app.post("/products", (req, res) => {
   const { name, sku, price, stocks, category_id, measurement, image_link, barcode } = req.body;
   const sql = "INSERT INTO products (name, sku, price, stocks, category_id, measurement, image_link, barcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-  db.query(sql, [name, sku, price, stocks, category_id, measurement, image_link, barcode], (err, data) => {
-    if (err) return res.json(err);
-    return res.json(data);
-  });
+  executeQuery(sql, [name, sku, price, stocks, category_id, measurement, image_link, barcode], res);
+});
+app.post("/logs", (req, res) => {
+  const { description, action } = req.body;
+  const sql = "INSERT INTO logs (description, action) VALUES (?, ?)";
+  executeQuery(sql, [description, action], res);
 });
 
-// PUT route for updating a product
+// ------------------ PUT & DELETE ROUTES ------------------- //
 app.put("/products/:id", (req, res) => {
   const { id } = req.params;
   const { name, sku, price, stocks, measurement, image_link, barcode } = req.body;
   const sql = "UPDATE products SET name = ?, sku = ?, price = ?, stocks = ?, measurement = ?, image_link = ?, barcode = ? WHERE id = ?";
-  db.query(sql, [name, sku, price, stocks, measurement, image_link, barcode, id], (err, data) => {
-    if (err) return res.json(err);
-    return res.json(data);
-  });
+  executeQuery(sql, [name, sku, price, stocks, measurement, image_link, barcode, id], res);
 });
 
-// DELETE route for deleting a product
 app.delete("/products/:id", (req, res) => {
   const { id } = req.params;
   const sql = "DELETE FROM products WHERE id = ?";
-  db.query(sql, [id], (err, data) => {
-    if (err) return res.json(err);
-    return res.json(data);
-  });
+  executeQuery(sql, [id], res);
 });
 
-// POST route to add a user
+// ------------------ USER REGISTRATION ------------------- //
 app.post("/users", (req, res) => {
   const { 
-    username,
-    phoneNumber,
-    firstName,
-    middleName,
-    lastName,
-    suffix,
-    email,
-    password
+    username, phoneNumber, firstName, middleName, lastName, suffix, email, password 
   } = req.body;
 
   const sql = `INSERT INTO users 
     (username, phone_number, first_name, middle_name, last_name, suffix, email_address, password) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  const values = [
-    username,
-    phoneNumber,
-    firstName,
-    middleName,
-    lastName,
-    suffix,
-    email,
-    password  // Note: In production, this should be hashed!
-  ];
-
-  db.query(sql, values, (err, result) => {
-    if (err) {
-      console.error('Database error:', err);
-      return res.status(500).json({ error: err.message });
-    }
-    return res.status(201).json({ 
-      message: "User registered successfully", 
-      userId: result.insertId 
-    });
-  });
+  executeQuery(sql, [username, phoneNumber, firstName, middleName, lastName, suffix, email, password], res);
 });
 
-// Send verification code route
+// ------------------ EMAIL VERIFICATION ------------------- //
 app.post("/api/send-verification", async (req, res) => {
   const { email, code } = req.body;
   
@@ -162,14 +115,12 @@ app.post("/api/send-verification", async (req, res) => {
       to: email,
       subject: 'Your Email Verification Code',
       text: `Your verification code is: ${code}\nThis code will expire in 5 minutes.`,
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Email Verification</h2>
-          <p>Your verification code is:</p>
-          <h1 style="color: #E39E05; font-size: 32px;">${code}</h1>
-          <p>This code will expire in 5 minutes.</p>
-        </div>
-      `
+      html: `<div style="font-family: Arial, sans-serif; padding: 20px;">
+               <h2>Email Verification</h2>
+               <p>Your verification code is:</p>
+               <h1 style="color: #E39E05; font-size: 32px;">${code}</h1>
+               <p>This code will expire in 5 minutes.</p>
+             </div>`
     });
 
     res.json({ success: true });
@@ -179,28 +130,11 @@ app.post("/api/send-verification", async (req, res) => {
   }
 });
 
-// Verify user and update database
 app.post("/api/verify-user", async (req, res) => {
   const { userId, email } = req.body;
-
-  try {
-    const sql = "UPDATE users SET is_verified = true WHERE id = ? AND email_address = ?";
-    db.query(sql, [userId, email], (err, result) => {
-      if (err) {
-        console.error('Database error:', err);
-        return res.status(500).json({ success: false, error: 'Database error' });
-      }
-      
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ success: false, error: 'User not found' });
-      }
-      
-      res.json({ success: true });
-    });
-  } catch (error) {
-    console.error('Verification error:', error);
-    res.status(500).json({ success: false, error: 'Verification failed' });
-  }
+  const sql = "UPDATE users SET is_verified = true WHERE id = ? AND email_address = ?";
+  
+  executeQuery(sql, [userId, email], res);
 });
 
 app.listen(process.env.PORT, () => {

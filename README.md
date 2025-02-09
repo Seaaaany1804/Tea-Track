@@ -45,7 +45,7 @@ Ensure the database is running, through XAMPP.
 
 ```bash
 cd backend
-npm start
+npm run start
 ```
 
 Start the Frontend

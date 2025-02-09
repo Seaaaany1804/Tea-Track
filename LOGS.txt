@@ -1,0 +1,6 @@
+CREATE TABLE logs (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  description TEXT,
+  product_id TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
