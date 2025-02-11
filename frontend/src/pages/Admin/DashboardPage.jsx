@@ -33,8 +33,13 @@ const DashboardPage = () => {
 
     useEffect(() => {
         const isLoggedIn = localStorage.getItem('isLoggedIn');
+        const userType = localStorage.getItem('userType');
+        
         if (!isLoggedIn) {
             navigate('/login');
+        }
+        if (userType !== 'admin') {
+            navigate('/404');
         }
     }, [navigate]);
 

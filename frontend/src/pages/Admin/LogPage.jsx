@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/NavBar';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import { MdSort } from "react-icons/md";
+import { useNavigate } from 'react-router-dom';
 
 function LogPage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,7 +40,20 @@ function LogPage() {
     });
   };
 
+  const navigate = useNavigate();
+
   useEffect(() => {
+
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const userType = localStorage.getItem('userType');
+
+    if (!isLoggedIn) {
+      navigate('/login');
+    }
+    if (userType !== 'admin') {
+      navigate('/404');
+    }
+
     const fetchLogs = async () => {
       try {
         const response = await fetch("http://localhost:8081/logs");

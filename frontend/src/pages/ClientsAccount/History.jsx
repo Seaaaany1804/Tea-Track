@@ -1,9 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ClientInterfaceNavBar from '../../components/clients-components/ClientInterfaceNavBar';
 import ClientFooter from '../../components/clients-components/ClientFooter';
 import { MdDeleteForever } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
 
 const History = () => {
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const userType = localStorage.getItem('userType');
+    if (!isLoggedIn) {
+      navigate('/login');
+    }
+    if (userType !== 'client') {
+      navigate('/404');
+    }
+  }, []);
+
   const [orders, setOrders] = useState([
     {
       id: 'ORD-3RYXOBQ23',

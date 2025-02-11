@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ClientInterfaceNavBar from '../../components/clients-components/ClientInterfaceNavBar';
 import ClientFooter from '../../components/clients-components/ClientFooter';
 import { MdDeleteForever } from 'react-icons/md';
+import { useNavigate } from 'react-router-dom';
 
 const Orders = () => {
-  const [orders, setOrders] = useState([
+  const [orders, setOrders] = useState([  
     {
       id: 'ORD-3RYXOBQ23',
       name: 'Boba Pearl',
@@ -24,6 +25,19 @@ const Orders = () => {
       date: 'Jan 20, 2025'
     }
   ]);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const userType = localStorage.getItem('userType');
+    if (!isLoggedIn) {
+      navigate('/login');
+    }
+    if (userType !== 'client') {
+      navigate('/404');
+    }
+  }, []);
 
   const [showModal, setShowModal] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState(null);

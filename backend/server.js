@@ -52,33 +52,36 @@ const executeQuery = (sql, values, res) => {
   });
 };
 
-// ------------------ GET ROUTES ------------------- //
+// ------------------ USERS ROUTES ------------------- //
+
 app.get("/users", (req, res) => {
   executeQuery("SELECT * FROM users", [], res);
 });
-app.get("/product-categories", (req, res) => {
-  executeQuery("SELECT * FROM product_categories", [], res);
+
+app.post("/users", (req, res) => {
+  const { 
+    username, phoneNumber, firstName, middleName, lastName, suffix, email, password 
+  } = req.body;
+
+  const sql = `INSERT INTO users 
+    (username, phone_number, first_name, middle_name, last_name, suffix, email_address, password) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+  executeQuery(sql, [username, phoneNumber, firstName, middleName, lastName, suffix, email, password], res);
 });
+
+// ------------------ PRODUCTS ROUTES ------------------- //
+
 app.get("/products", (req, res) => {
   executeQuery("SELECT * FROM products", [], res);
 });
-app.get("/logs", (req, res) => {
-  executeQuery("SELECT * FROM logs", [], res);
-});
 
-// ------------------ POST ROUTES ------------------- //
 app.post("/products", (req, res) => {
   const { name, sku, price, stocks, category_id, measurement, image_link, barcode } = req.body;
   const sql = "INSERT INTO products (name, sku, price, stocks, category_id, measurement, image_link, barcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
   executeQuery(sql, [name, sku, price, stocks, category_id, measurement, image_link, barcode], res);
 });
-app.post("/logs", (req, res) => {
-  const { description, action } = req.body;
-  const sql = "INSERT INTO logs (description, action) VALUES (?, ?)";
-  executeQuery(sql, [description, action], res);
-});
 
-// ------------------ PUT & DELETE ROUTES ------------------- //
 app.put("/products/:id", (req, res) => {
   const { id } = req.params;
   const { name, sku, price, stocks, measurement, image_link, barcode } = req.body;
@@ -92,23 +95,24 @@ app.delete("/products/:id", (req, res) => {
   executeQuery(sql, [id], res);
 });
 
-// ------------------ USER REGISTRATION ------------------- //
-app.post("/users", (req, res) => {
-  const { 
-    username, phoneNumber, firstName, middleName, lastName, suffix, email, password 
-  } = req.body;
+app
 
-  const sql = `INSERT INTO users 
-    (username, phone_number, first_name, middle_name, last_name, suffix, email_address, password) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+// ------------------ LOGS ROUTES ------------------- //
 
-  executeQuery(sql, [username, phoneNumber, firstName, middleName, lastName, suffix, email, password], res);
+app.get("/logs", (req, res) => {
+  executeQuery("SELECT * FROM logs", [], res);
+});
+
+app.post("/logs", (req, res) => {
+  const { description, action } = req.body;
+  const sql = "INSERT INTO logs (description, action) VALUES (?, ?)";
+  executeQuery(sql, [description, action], res);
 });
 
 // ------------------ EMAIL VERIFICATION ------------------- //
+
 app.post("/api/send-verification", async (req, res) => {
   const { email, code } = req.body;
-  
   try {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
@@ -122,7 +126,6 @@ app.post("/api/send-verification", async (req, res) => {
                <p>This code will expire in 5 minutes.</p>
              </div>`
     });
-
     res.json({ success: true });
   } catch (error) {
     console.error('Email error:', error);

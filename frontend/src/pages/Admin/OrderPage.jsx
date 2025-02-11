@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/NavBar';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import { TbTruckDelivery } from "react-icons/tb";
 import { LuArchiveRestore } from "react-icons/lu";
 import { MdSort } from "react-icons/md";
+import { useNavigate } from 'react-router-dom';
 
 // Function to generate a random status
 const getRandomStatus = () => (Math.random() > 0.5 ? "Out for Delivery" : "Delivered");
 
 function OrderPage() {
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const userType = localStorage.getItem('userType');
+    
+    if (!isLoggedIn) {
+      navigate('/login');
+    }
+    if (userType !== 'admin') {
+      navigate('/404');
+    }
+  }, [navigate]);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [showDeliveryModal, setShowDeliveryModal] = useState(false);
   const [showArchiveModal, setShowArchiveModal] = useState(false);

@@ -12,16 +12,10 @@ import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import EditItemModal from "../../components/modals/EditItemModal";
 import DeleteItemModal from "../../components/modals/DeleteItemModal";
 import { useNavigate } from "react-router-dom";
+
 function InventoryPage() {
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (!isLoggedIn) {
-      navigate('/login');
-    }
-  }, [navigate]);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -34,6 +28,16 @@ function InventoryPage() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const userType = localStorage.getItem('userType');
+
+    if (!isLoggedIn) {
+      navigate('/login');
+    }
+    if (userType !== 'admin') {
+      navigate('/404');
+    }
+
     const getProducts = async () => {
       const response = await fetch("http://localhost:8081/products");
       const data = await response.json();
