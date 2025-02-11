@@ -50,7 +50,7 @@ function LogPage() {
     if (!isLoggedIn) {
       navigate('/login');
     }
-    if (userType !== 'admin') {
+    else if (userType !== 'admin') {
       navigate('/404');
     }
 

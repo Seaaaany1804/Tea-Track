@@ -17,8 +17,13 @@ function LoginPage() {
   // Check if user is already logged in
   useEffect(() => {
     const isLoggedIn = localStorage.getItem('isLoggedIn');
+    const userType = localStorage.getItem('userType');  
     if (isLoggedIn === 'true') {
-      navigate('/dashboard');
+      if (userType === 'admin') {
+        navigate('/dashboard');
+      } else if (userType === 'client') {
+        navigate('/client');
+      }
     }
   }, [navigate]);
 
@@ -44,7 +49,13 @@ function LoginPage() {
         
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userId', user.id);
-        navigate('/dashboard');
+        localStorage.setItem('userType', user.user_type);
+
+        if (user.user_type === 'admin') {
+          navigate('/dashboard');
+        } else if (user.user_type === 'client') {
+          navigate('/client');
+        }
       } else {
         setError('Invalid email/username or password');
       }

@@ -38,7 +38,7 @@ const DashboardPage = () => {
         if (!isLoggedIn) {
             navigate('/login');
         }
-        if (userType !== 'admin') {
+        else if (userType !== 'admin') {
             navigate('/404');
         }
     }, [navigate]);

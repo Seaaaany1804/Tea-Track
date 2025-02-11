@@ -1,14 +1,22 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const ClientInterfaceNavBar = () => {
     const location = useLocation();
+    const navigate = useNavigate();
 
     // Helper function to determine active link styling
     const getLinkStyle = (path) => {
         return location.pathname === path
             ? 'text-[#E39E05] font-semibold'  // Active page - Yellow
             : 'text-white hover:text-yellow-300'; // Inactive page - White
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('userId');
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('userType');
+        navigate('/login');
     };
 
     return (
@@ -36,7 +44,7 @@ const ClientInterfaceNavBar = () => {
                         <Link to="/clienthistory" className={getLinkStyle('/clienthistory')}>History</Link>
                     </li>
                 </ul>
-                <Link to='/login' className='bg-white text-black p-2 px-7 rounded-[20px] font-medium'>Logout</Link>
+                <Link to='/login' className='bg-white text-black p-2 px-7 rounded-[20px] font-medium' onClick={handleLogout}>Logout</Link>
             </div>
         </div>
     );

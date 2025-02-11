@@ -23,7 +23,8 @@ function Navbar() {
         // Clear all stored user data
         localStorage.removeItem('isLoggedIn');
         localStorage.removeItem('userId');
-        
+        localStorage.removeItem('userType');
+
         // Close modal and redirect
         setIsModalOpen(false);
         navigate('/login'); // Redirect to login page

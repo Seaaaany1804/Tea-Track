@@ -16,7 +16,7 @@ const ClientsInterface = () => {
     if (!isLoggedIn) {
       navigate('/login');
     }
-    if (userType !== 'client') {
+    else if (userType !== 'client') {
       navigate('/404');
     }
   }, [navigate]);
