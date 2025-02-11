@@ -41,7 +41,7 @@ function LoginPage() {
       );
 
       if (user) {
-        if (!user.is_verified) {
+        if (!user.is_verified && user.user_type === 'client') {
           setUnverifiedUserId(user.id);
           setShowVerificationModal(true);
           return;
