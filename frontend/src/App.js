@@ -13,6 +13,7 @@ import Orders from "./pages/ClientsAccount/Orders";
 import Cart from "./pages/ClientsAccount/Cart";
 import History from "./pages/ClientsAccount/History";
 import BuyItem from "./pages/ClientsAccount/BuyItem";
+import Error404 from "./Error/Error404";
 export default function App() {
   return (
     <Router>
@@ -45,6 +46,7 @@ export default function App() {
         <Route path='/clientcart' element={<Cart/>}/>
         <Route path='/clienthistory' element={<History/>}/>
         <Route path='/buyitem' element={<BuyItem/>}/>
+        <Route path='/error' element={<Error404/>}/>
       </Routes>
     </Router>
   );

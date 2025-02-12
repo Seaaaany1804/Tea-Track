@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import ClientInterfaceNavBar from '../../components/clients-components/ClientInterfaceNavBar';
 import ClientFooter from '../../components/clients-components/ClientFooter';
-import { MdDeleteForever } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
 const History = () => {
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,107 +20,85 @@ const History = () => {
   const [orders, setOrders] = useState([
     {
       id: 'ORD-3RYXOBQ23',
-      name: 'Boba Pearl',
+      name: 'Tea Track Boba Pearl Tea',
       image: '/assets/images/bobapearl.png',
-      quantity: 2,
-      price: '$5.99',
-      status: 'Cancelled',
-      date: 'Jan 20, 2025 10:31AM'
+      quantity: 'x23',
+      itemprice:'P200',
+      price: 'P400',
+      dateandtime:'8:22PM 2/12/2024',
+      status: 'Completed',
+      weight: '600g'
     },
     {
-      id: 'ORD-8KLYZOP98',
-      name: 'Boba Pearl',
+      id: 'ORD-3RYXOBQ23',
+      name: 'Tea Track Boba Pearl Tea',
       image: '/assets/images/bobapearl.png',
-      quantity: 1,
-      price: '$4.50',
-      status: 'Shipped',
-      date: 'Jan 20, 2025 10:31AM'
+      quantity: 'x23',
+      price: 'P400',
+      dateandtime:'8:22PM 2/12/2024',
+      status: 'Completed',
+      weight: '600g'
     }
   ]);
 
-  const [deleteModal, setDeleteModal] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
-
-  const openDeleteModal = (order) => {
-    setSelectedOrder(order);
-    setDeleteModal(true);
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteModal(false);
-    setSelectedOrder(null);
-  };
-
-  const deleteOrder = () => {
-    setOrders(orders.filter(order => order.id !== selectedOrder.id));
-    closeDeleteModal();
-  };
-
   return (
-    <div className='bg-[#0D2F26] min-h-screen flex flex-col'>
+    <div className="bg-[#0D2F26] min-h-screen flex flex-col">
       <ClientInterfaceNavBar />
-      <div className='px-20 mt-10 mb-10 flex-1'>
-        <h1 className='text-[#E0EF8F] text-[35px] font-semibold'>Order History</h1>
-        <div className='mt-10 space-y-7'>
-          {orders.map((order, index) => (
-            <div key={index} className='w-full p-5 flex items-center space-x-24 rounded-lg shadow-md bg-[#E0EF8F] text-[#0D2F26]'>
-              <input type='checkbox' />
-              <div className='w-24'>
-                <img src={order.image} alt={order.name} className='w-full rounded-md' />
-              </div>
-              <div className='flex-1'>
-                <h1 className='text-[20px] font-semibold'>{order.name}</h1>
-                <p className='text-gray-700'>{order.id}</p>
-              </div>
-              <div className='text-center'>
-                <h1 className='text-[18px] font-semibold'>Quantity</h1>
-                <p>{order.quantity}</p>
-              </div>
-              <div className='text-center'>
-                <h1 className='text-[18px] font-semibold'>Price</h1>
-                <p>{order.price}</p>
-              </div>
-              <div className='text-center'>
-                <h1 className='text-[18px] font-semibold'>Status</h1>
-                <p className={`${order.status === 'Cancelled' ? 'text-red-500' : ''}`}>{order.status}</p>
-              </div>
-              <div className='text-center'>
-                <h1 className='text-[18px] font-semibold'>Date & Time</h1>
-                <p>{order.date}</p>
-              </div>
-              <div>
-                <MdDeleteForever 
-                  className='text-red-500 text-2xl cursor-pointer' 
-                  onClick={() => openDeleteModal(order)}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <ClientFooter />
-
-      {deleteModal && (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center'>
-          <div className='bg-white p-6 rounded-lg shadow-lg text-center'>
-            <h2 className='text-lg font-semibold mb-4'>Are you sure you want to delete this order?</h2>
-            <div className='flex justify-end space-x-4'>
-              <button 
-                onClick={deleteOrder} 
-                className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600'
-              >
-                Delete
-              </button>
-              <button 
-                onClick={closeDeleteModal} 
-                className='bg-gray-300 px-4 py-2 rounded-md hover:bg-gray-400'
-              >
-                Cancel
-              </button>
-            </div>
+      <div className="flex-1 px-20 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-[#E0EF8F] text-3xl font-semibold">Order History</h1>
+          <div className="text-[#E0EF8F]">
+            <span className="mr-2">Sort By:</span>
+            <select className="bg-transparent border border-[#E0EF8F] rounded px-2 py-1">
+              <option value="date">Date</option>
+              <option value="status">Status</option>
+            </select>
           </div>
         </div>
-      )}
+
+        {orders.map((order, index) => (
+          <div key={index} className="bg-[#E0EF8F] rounded-xl p-6 px-12 mb-6 text-[#0D2F26] ">
+            <div className="flex justify-between items-center mb-4">
+              <div className='flex flex-col'>
+                <span className="text-[#0D2F26] text-xl font-bold">{order.id}</span>
+                <span className="text-[#0D2F26]">{order.dateandtime}</span>
+              </div>
+              <span className="text-green-600 text-xl">{order.status}</span>
+            </div>
+            
+            {/* Repeat the same item twice as shown in the image */}
+            {[1, 2].map((_, idx) => (
+              <div key={idx} className="flex items-center gap-4 mb-4 border-t-2  border-[#0D2F26] py-5">
+                <div className="w-32 h-32">
+                  <img 
+                    src={order.image} 
+                    alt={order.name}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+                <div className="flex-1">
+                  <div className='flex gap-2 items-center'>
+                    <h3 className="font-medium text-lg">{order.name}</h3>
+                    <span className="text-gray-600">{order.quantity}</span>
+                  </div>
+                  <p className="text-gray-600 text-sm">{order.weight}</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-[#0D2F26] text-xl">{order.itemprice}</span>
+                </div>
+              </div>
+            ))}
+            
+            <div className="flex justify-end mt-2">
+              <div className="text-right flex items-center gap-5">
+                <p className="text-md text-gray-600">Total 2 items:</p>
+                <p className="font-bold text-xl">Total: {order.price}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <ClientFooter />
     </div>
   );
 };
