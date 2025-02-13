@@ -14,6 +14,8 @@ import Cart from "./pages/ClientsAccount/Cart";
 import History from "./pages/ClientsAccount/History";
 import BuyItem from "./pages/ClientsAccount/BuyItem";
 import Error404 from "./Error/Error404";
+import SuperAdmin from "./pages/SuperAdmin";
+import ChangePassword from "./pages/ChangePassword";
 export default function App() {
   return (
     <Router>
@@ -47,6 +49,8 @@ export default function App() {
         <Route path='/clienthistory' element={<History/>}/>
         <Route path='/buyitem' element={<BuyItem/>}/>
         <Route path='/error' element={<Error404/>}/>
+        <Route path='/superadmin' element={<SuperAdmin/>}/>
+        <Route path='/superadminchange' element={<ChangePassword/>}/>
       </Routes>
     </Router>
   );
