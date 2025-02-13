@@ -74,9 +74,13 @@ app.post("/users", (req, res) => {
     (username, phone_number, first_name, middle_name, last_name, suffix, email_address, password) 
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
-  executeQuery(
-    sql,
-    [
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error("Database connection error:", err);
+      return res.status(500).json({ error: "Database connection error" });
+    }
+
+    connection.query(sql, [
       username,
       phoneNumber,
       firstName,
@@ -85,9 +89,20 @@ app.post("/users", (req, res) => {
       suffix,
       email,
       password,
-    ],
-    res
-  );
+    ], (queryErr, result) => {
+      connection.release();
+
+      if (queryErr) {
+        console.error("Database query error:", queryErr);
+        return res.status(500).json({ error: "Database query error" });
+      }
+
+      res.json({ 
+        message: "User registered successfully",
+        userId: result.insertId 
+      });
+    });
+  });
 });
 
 // ------------------ PRODUCT CATEGORIES ROUTES ------------------- //
