@@ -35,7 +35,7 @@ function InventoryPage() {
       navigate('/login');
     }
     else if (userType !== 'admin') {
-      navigate('/404');
+      navigate('/error');
     }
 
     const getProducts = async () => {

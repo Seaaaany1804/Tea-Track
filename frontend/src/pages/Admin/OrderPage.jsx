@@ -21,7 +21,7 @@ function OrderPage() {
       navigate('/login');
     }
     else if (userType !== 'admin') {
-      navigate('/404');
+      navigate('/error');
     }
   }, [navigate]);
 

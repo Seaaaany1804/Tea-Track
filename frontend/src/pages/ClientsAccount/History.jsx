@@ -13,7 +13,7 @@ const History = () => {
       navigate('/login');
     }
     else if (userType !== 'client') {
-      navigate('/404');
+      navigate('/error');
     }
   }, []);
 
