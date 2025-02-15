@@ -35,7 +35,7 @@ Backend
 
 ```bash
 cd backend
-npm install express mysql cors nodemon
+npm install express mysql cors nodemon nodemailer
 ```
 
 ### 4. Run the System
