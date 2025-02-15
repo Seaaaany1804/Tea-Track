@@ -58,6 +58,11 @@ app.get("/users", (req, res) => {
   executeQuery("SELECT * FROM users", [], res);
 });
 
+app.get("/users/:id", (req, res) => {
+  const { id } = req.params;
+  executeQuery("SELECT * FROM users WHERE id = ?", [id], res);
+});
+
 app.post("/users", (req, res) => {
   const {
     username,
@@ -156,6 +161,31 @@ app.delete("/products/:id", (req, res) => {
   executeQuery(sql, [id], res);
 });
 
+// ------------------ CART ITEM ROUTES ------------------- //
+
+app.get("/cart-items", (req, res) => {
+  executeQuery("SELECT C.id, C.client_id, P.name as product_name, P.image_link as image_link, C.product_id, C.quantity, C.unit_price, C.created_at FROM cart_items C LEFT JOIN products P ON C.product_id = P.id", [], res);
+});
+
+app.get("/cart-items/:client_id", (req, res) => {
+  const { client_id } = req.params;
+  const sql = "SELECT C.id, C.client_id, P.name as product_name, P.image_link as image_link, C.product_id, C.quantity, C.unit_price, C.created_at FROM cart_items C LEFT JOIN products P ON C.product_id = P.id WHERE C.client_id = ?";
+  executeQuery(sql, [client_id], res);
+});
+
+app.post("/cart-items", (req, res) => {
+  const { client_id, product_id, quantity, unit_price } = req.body;
+  const sql =
+    "INSERT INTO cart_items (client_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+  executeQuery(sql, [client_id, product_id, quantity, unit_price], res);
+});
+
+app.delete("/cart-items/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "DELETE FROM cart_items WHERE id = ?";
+  executeQuery(sql, [id], res);
+});
+
 // ------------------ LOGS ROUTES ------------------- //
 
 app.get("/logs", (req, res) => {
@@ -171,28 +201,27 @@ app.post("/logs", (req, res) => {
 // ------------------ ORDERS ROUTES ------------------- //
 
 app.post("/orders", (req, res) => {
-  const { client_id, email_address, total_amount, order_details } = req.body;
+  const { client_id, total_amount, order_details } = req.body;
 
   // Get a connection from the pool
   db.getConnection((err, connection) => {
     if (err) {
-      console.error("Database connection error:", err);
+      console.error("Error getting connection from pool:", err);
       return res.status(500).json({ error: "Database connection error" });
     }
 
-    // Begin transaction
+    // Start transaction
     connection.beginTransaction((err) => {
       if (err) {
         connection.release();
-        return res.status(500).json({ error: "Transaction error" });
+        return res.status(500).json({ error: "Error starting transaction" });
       }
 
       // First, insert the order
-      const orderSql =
-        "INSERT INTO orders (client_id, email_address, total_amount) VALUES (?, ?, ?)";
+      const orderSql = "INSERT INTO orders (client_id, total_amount) VALUES (?, ?)";
       connection.query(
         orderSql,
-        [client_id, email_address, total_amount],
+        [client_id, total_amount],
         (err, orderResult) => {
           if (err) {
             return connection.rollback(() => {
@@ -211,7 +240,7 @@ app.post("/orders", (req, res) => {
             detail.product_id,
             detail.product_quantity,
             detail.unit_price,
-            detail.product_quantity * detail.unit_price, // Calculate sub_total
+            detail.sub_total
           ]);
 
           // Insert order details
@@ -223,21 +252,30 @@ app.post("/orders", (req, res) => {
               });
             }
 
-            // Commit transaction
-            connection.commit((err) => {
+            // Delete items from cart after successful order
+            const deleteCartSql = "DELETE FROM cart_items WHERE client_id = ?";
+            connection.query(deleteCartSql, [client_id], (err) => {
               if (err) {
                 return connection.rollback(() => {
                   connection.release();
-                  res
-                    .status(500)
-                    .json({ error: "Error committing transaction" });
+                  res.status(500).json({ error: "Error deleting cart items" });
                 });
               }
 
-              connection.release();
-              res.json({
-                message: "Order created successfully",
-                orderId: orderId,
+              // If everything is successful, commit the transaction
+              connection.commit((err) => {
+                if (err) {
+                  return connection.rollback(() => {
+                    connection.release();
+                    res.status(500).json({ error: "Error committing transaction" });
+                  });
+                }
+
+                connection.release();
+                res.status(200).json({
+                  message: "Order created successfully",
+                  orderId: orderId,
+                });
               });
             });
           });

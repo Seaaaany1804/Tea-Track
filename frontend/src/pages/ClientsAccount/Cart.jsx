@@ -5,11 +5,13 @@ import { MdDeleteForever } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
+  const [user, setUser] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showBuyNowModal, setShowBuyNowModal] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orders, setOrders] = useState([]);
   const [selectedOrders, setSelectedOrders] = useState([]);
-
+  const [deletedOrderId, setDeletedOrderId] = useState(null);
+  const [totalPrice, setTotalPrice] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,26 +23,31 @@ const Cart = () => {
     else if (userType !== 'client') {
       navigate('/error');
     }
-  }, []);
 
-  const orders = [
-    {
-      id: 1,
-      name: 'Boba Pearl',
-      image: '/assets/images/bobapearl.png',
-      quantity: 2,
-      price: 5.99,
-      date: 'Jan 20, 2025 10:31AM'
-    },
-    {
-      id: 2,
-      name: 'Boba Pearl',
-      image: '/assets/images/bobapearl.png',
-      quantity: 1,
-      price: 4.50,
-      date: 'Jan 20, 2025 10:31AM'
-    },
-  ];
+    const getUser = async () => {
+      try {
+        const response = await fetch('http://localhost:8081/users/' + localStorage.getItem('userId'));
+        const data = await response.json();
+        setUser(data[0]);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+
+    getUser();
+
+    const getCartItems = async () => {
+      try {
+        const response = await fetch('http://localhost:8081/cart-items/' + localStorage.getItem('userId'));
+        const data = await response.json();
+        setOrders(data);
+      } catch (error) {
+        console.error('Error fetching cart items:', error);
+      }
+    };
+
+    getCartItems();
+  }, []);
 
   const handleCheckboxChange = (order) => {
     setSelectedOrders((prevSelected) =>
@@ -50,7 +57,69 @@ const Cart = () => {
     );
   };
 
-  const totalPrice = selectedOrders.reduce((acc, order) => acc + order.price * order.quantity, 0).toFixed(2);
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:8081/cart-items/${id}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+        setShowDeleteModal(false);
+        setDeletedOrderId(null);
+        setOrders(orders.filter(order => order.id !== id));
+      }
+    } catch (error) {
+      console.error('Error deleting cart item:', error);
+    }
+  };
+
+  const handleBuyNowModal = () => {
+    setShowBuyNowModal(true);
+    setTotalPrice(selectedOrders.reduce((total, order) => total + (parseFloat(order.unit_price) * order.quantity), 0));
+  };
+
+  const handleConfirmOrder = async () => {
+    try {
+      const response = await fetch('http://localhost:8081/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          client_id: localStorage.getItem('userId'),
+          total_amount: totalPrice,
+          order_details: selectedOrders.map(order => ({
+            product_id: order.id,
+            product_quantity: order.quantity,
+            unit_price: order.unit_price,
+            sub_total: order.quantity * order.unit_price
+          }))
+        })
+      }
+      )
+      if (response.ok) {
+        alert("Order confirmed successfully!");
+        navigate("/");
+      };
+    } catch (error) {
+      console.error('Error confirming order:', error);
+    }
+  };
+
+  const formatDateToPHT = (dateString) => {
+    const date = new Date(dateString);
+    date.setHours(date.getHours() + 8);
+    return date.toLocaleString("en-PH", {
+      timeZone: "Asia/Manila", // Convert to Philippine Time (PHT)
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
 
   return (
     <div className='bg-[#0D2F26] h-screen flex flex-col'>
@@ -59,7 +128,7 @@ const Cart = () => {
         <div className='flex items-center justify-between'>
           <h1 className='text-[#E0EF8F] text-[35px] font-semibold'>Order History</h1>
           <button
-            onClick={() => selectedOrders.length > 0 && setShowBuyNowModal(true)}
+            onClick={() => selectedOrders.length > 0 && handleBuyNowModal()}
             disabled={selectedOrders.length === 0}
             className={`p-2 px-10 text-black text-[17px] font-semibold rounded-[20px] ${selectedOrders.length > 0 ? 'bg-[#E39E05]' : 'bg-gray-400 cursor-not-allowed'}`}
           >
@@ -69,13 +138,14 @@ const Cart = () => {
         <div className='mt-10 space-y-7'>
           {orders.map((order) => (
             <div key={order.id} className='w-full p-5 flex items-center space-x-24 rounded-lg shadow-md bg-[#E0EF8F] text-[#0D2F26] relative'>
-              <input type='checkbox' onChange={() => handleCheckboxChange(order)} checked={selectedOrders.includes(order)} />
+              <input type='checkbox'
+                onChange={() => handleCheckboxChange(order)} checked={selectedOrders.includes(order)} />
               <div className='w-24'>
-                <img src={order.image} alt={order.name} className='w-full rounded-md' />
+                <img src={order.image_link} alt={order.product_name} className='w-full rounded-md' />
               </div>
               <div>
                 <h1 className='text-[18px] font-semibold'>Item Name</h1>
-                <h1>{order.name}</h1>
+                <h1>{order.product_name}</h1>
               </div>
               <div className='text-center'>
                 <h1 className='text-[18px] font-semibold'>Quantity</h1>
@@ -83,14 +153,14 @@ const Cart = () => {
               </div>
               <div className='text-center'>
                 <h1 className='text-[18px] font-semibold'>Price</h1>
-                <p>${order.price.toFixed(2)}</p>
+                <p>₱ {parseFloat(order.unit_price).toFixed(2)}</p>
               </div>
               <div className='text-center'>
                 <h1 className='text-[18px] font-semibold'>Date & Time</h1>
-                <p>{order.date}</p>
+                <p>{formatDateToPHT(order.created_at)}</p>
               </div>
               <div className='absolute right-10'>
-                <MdDeleteForever className='text-red-500 text-2xl cursor-pointer' onClick={() => { setSelectedOrder(order); setShowDeleteModal(true); }} />
+                <MdDeleteForever className='text-red-500 text-2xl cursor-pointer' onClick={() => { setShowDeleteModal(true); setDeletedOrderId(order.id); }} />
               </div>
             </div>
           ))}
@@ -104,7 +174,7 @@ const Cart = () => {
           <div className='bg-white p-5 rounded-md text-center'>
             <h2 className='text-lg font-semibold'>Are you sure you want to delete this order?</h2>
             <div className='mt-4 flex justify-center space-x-4'>
-              <button className='px-4 py-2 bg-red-500 text-white rounded-md' onClick={() => setShowDeleteModal(false)}>Delete</button>
+              <button className='px-4 py-2 bg-red-500 text-white rounded-md' onClick={() => { handleDelete(deletedOrderId); }}>Delete</button>
               <button className='px-4 py-2 bg-gray-300 rounded-md' onClick={() => setShowDeleteModal(false)}>Cancel</button>
             </div>
           </div>
@@ -120,21 +190,21 @@ const Cart = () => {
               {selectedOrders.map((order, index) => (
                 <div key={index} className='flex items-center justify-between p-2 border-b'>
                   <div className='flex items-center space-x-2'>
-                    <img src={order.image} alt={order.name} className='w-10 h-10 rounded-md' />
+                    <img src={order.image_link} alt={order.name} className='w-10 h-10 rounded-md' />
                     <p>{order.name} (x{order.quantity})</p>
                   </div>
-                  <p>${(order.price * order.quantity).toFixed(2)}</p>
+                  <p>₱ {parseFloat(order.unit_price).toFixed(2)}</p>
                 </div>
               ))}
             </div>
             <div className='mt-4 text-lg font-semibold'>
-              Total: ${totalPrice}
+              Total: ₱ {totalPrice.toFixed(2)}
             </div>
-            <input type='text' placeholder='Full Name' className='w-full p-2 mt-2 border rounded-md' required />
-            <input type='text' placeholder='Contact Number' className='w-full p-2 mt-2 border rounded-md' required />
-            <input type='text' placeholder='Address' className='w-full p-2 mt-2 border rounded-md' required />
+            <input type='text' placeholder='Full Name' value={user.first_name + " " + user.middle_name.charAt(0).toUpperCase() + ". " + user.last_name} className='w-full p-2 mt-2 border rounded-md' required />
+            <input type='text' placeholder='Contact Number' value={user.phone_number} className='w-full p-2 mt-2 border rounded-md' required />
+            <input type='text' placeholder='Address' value={user.address} className='w-full p-2 mt-2 border rounded-md' required />
             <div className='mt-4 flex justify-center space-x-4'>
-              <button className='px-4 py-2 bg-green-500 text-white rounded-md'>Confirm</button>
+              <button className='px-4 py-2 bg-green-500 text-white rounded-md' onClick={handleConfirmOrder}>Confirm</button>
               <button className='px-4 py-2 bg-gray-300 rounded-md' onClick={() => setShowBuyNowModal(false)}>Cancel</button>
             </div>
           </div>

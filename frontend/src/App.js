@@ -47,7 +47,7 @@ export default function App() {
         <Route path='/clientorders' element={<Orders/>}/>
         <Route path='/clientcart' element={<Cart/>}/>
         <Route path='/clienthistory' element={<History/>}/>
-        <Route path='/buyitem' element={<BuyItem/>}/>
+        <Route path='/buyitem' element={<BuyItem/>} />
         <Route path='/error' element={<Error404/>}/>
         <Route path='/superadmin' element={<SuperAdmin/>}/>
         <Route path='/superadminchange' element={<ChangePassword/>}/>
