@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "@types/react-router": "^5.1.20",
-    "react": "^19.0.0"
+    "react": "^19.0.0",
+    "react-barcode": "^1.5.3"
   },
   "devDependencies": {
     "@types/react": "^19.0.8"

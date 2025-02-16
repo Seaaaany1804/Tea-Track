@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Barcode from "react-barcode";
 import { FaBarcode } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -202,14 +203,11 @@ function AddItemModal({ isOpen, closeModal }) {
               </button>
             </div>
 
-            {/* Display Generated Barcode */}
-            {formData.barcode && (
-              <div className="mb-4">
-                <div className="flex justify-end p-2 border rounded-md text-center">
-                  <FaBarcode className="text-[30px] text-[#14463A]" />
-                </div>
+            <div>
+              <div className="flex justify-center border rounded-md">
+                <Barcode value={formData.barcode} displayValue={false} />
               </div>
-            )}
+            </div>
 
             {/* Action Buttons */}
             <div className="flex justify-between mt-7">

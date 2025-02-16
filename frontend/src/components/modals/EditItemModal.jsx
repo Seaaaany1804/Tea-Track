@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaBarcode } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import Barcode from "react-barcode";
 
 function EditItemModal({ isOpen, closeModal, item }) {
   const [formData, setFormData] = useState({
@@ -29,6 +30,7 @@ function EditItemModal({ isOpen, closeModal, item }) {
         barcode: item.barcode || ""
       });
     }
+
   }, [item]);
 
   console.log(formData);
@@ -38,7 +40,7 @@ function EditItemModal({ isOpen, closeModal, item }) {
   };
 
   const handleSave = () => {
-    const updateItem = async() => {
+    const updateItem = async () => {
       const response = await fetch(`http://localhost:8081/products/${formData.id}`, {
         method: "PUT",
         headers: {
@@ -123,7 +125,7 @@ function EditItemModal({ isOpen, closeModal, item }) {
               />
             </div>
 
-            {/* SKU and Barcode (Read-Only) */}
+            {/* SKU (Read-Only) */}
             <div className="mb-4">
               <label className="block text-gray-700">SKU</label>
               <input
@@ -135,10 +137,11 @@ function EditItemModal({ isOpen, closeModal, item }) {
               />
             </div>
 
+            {/* Barcode */}
             <div className="mb-4">
               <label className="block text-gray-700">Barcode</label>
-              <div className="flex justify-end p-2 border rounded-md text-center">
-                <FaBarcode className="text-[30px] text-[#14463A]" />
+              <div className="flex justify-center border rounded-md">
+                <Barcode value={formData.barcode} displayValue={false} />
               </div>
             </div>
 
