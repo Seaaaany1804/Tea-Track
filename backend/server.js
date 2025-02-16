@@ -102,9 +102,9 @@ app.post("/users", (req, res) => {
         return res.status(500).json({ error: "Database query error" });
       }
 
-      res.json({ 
+      res.json({
         message: "User registered successfully",
-        userId: result.insertId 
+        userId: result.insertId
       });
     });
   });
@@ -155,6 +155,13 @@ app.put("/products/:id", (req, res) => {
   );
 });
 
+app.put("/products/stocks/:id", (req, res) => {
+  const { stocks } = req.body;
+  const { id } = req.params;
+  const sql = "UPDATE products SET stocks = ? WHERE id = ?";
+  executeQuery(sql, [stocks, id], res);
+});
+
 app.delete("/products/:id", (req, res) => {
   const { id } = req.params;
   const sql = "DELETE FROM products WHERE id = ?";
@@ -200,101 +207,124 @@ app.post("/logs", (req, res) => {
 
 // ------------------ ORDERS ROUTES ------------------- //
 
+app.get("/orders", (req, res) => {
+  executeQuery("SELECT * FROM orders", [], res);
+});
+
 app.post("/orders", (req, res) => {
   const { client_id, total_amount, order_details } = req.body;
 
-  // Get a connection from the pool
   db.getConnection((err, connection) => {
     if (err) {
       console.error("Error getting connection from pool:", err);
       return res.status(500).json({ error: "Database connection error" });
     }
 
-    // Start transaction
     connection.beginTransaction((err) => {
       if (err) {
         connection.release();
         return res.status(500).json({ error: "Error starting transaction" });
       }
 
-      // First, insert the order
+      // Insert order
       const orderSql = "INSERT INTO orders (client_id, total_amount) VALUES (?, ?)";
-      connection.query(
-        orderSql,
-        [client_id, total_amount],
-        (err, orderResult) => {
+      connection.query(orderSql, [client_id, total_amount], (err, orderResult) => {
+        if (err) {
+          return connection.rollback(() => {
+            connection.release();
+            res.status(500).json({ error: "Error creating order" });
+          });
+        }
+
+        const orderId = orderResult.insertId;
+
+        // Insert order details
+        const detailsSql =
+          "INSERT INTO order_details (order_id, product_id, product_quantity, unit_price, sub_total) VALUES ?";
+        const detailsValues = order_details.map((detail) => [
+          orderId,
+          detail.product_id,
+          detail.product_quantity,
+          detail.unit_price,
+          detail.sub_total,
+        ]);
+
+        connection.query(detailsSql, [detailsValues], (err) => {
           if (err) {
             return connection.rollback(() => {
               connection.release();
-              res.status(500).json({ error: "Error creating order" });
+              res.status(500).json({ error: "Error creating order details" });
             });
           }
 
-          const orderId = orderResult.insertId;
+          // Update product stocks
+          const updateStockSql = `
+            UPDATE products 
+            SET stocks = stocks - ? 
+            WHERE id = ?`;
 
-          // Prepare order details queries
-          const detailsSql =
-            "INSERT INTO order_details (order_id, product_id, product_quantity, unit_price, sub_total) VALUES ?";
-          const detailsValues = order_details.map((detail) => [
-            orderId,
-            detail.product_id,
-            detail.product_quantity,
-            detail.unit_price,
-            detail.sub_total
-          ]);
-
-          // Insert order details
-          connection.query(detailsSql, [detailsValues], (err) => {
-            if (err) {
-              return connection.rollback(() => {
-                connection.release();
-                res.status(500).json({ error: "Error creating order details" });
-              });
-            }
-
-            // Delete items from cart after successful order
-            const deleteCartSql = "DELETE FROM cart_items WHERE client_id = ?";
-            connection.query(deleteCartSql, [client_id], (err) => {
-              if (err) {
-                return connection.rollback(() => {
-                  connection.release();
-                  res.status(500).json({ error: "Error deleting cart items" });
-                });
-              }
-
-              // If everything is successful, commit the transaction
-              connection.commit((err) => {
-                if (err) {
-                  return connection.rollback(() => {
-                    connection.release();
-                    res.status(500).json({ error: "Error committing transaction" });
-                  });
-                }
-
-                connection.release();
-                res.status(200).json({
-                  message: "Order created successfully",
-                  orderId: orderId,
-                });
+          // Reduce stock for each product in the order
+          const stockUpdates = order_details.map((detail) => {
+            return new Promise((resolve, reject) => {
+              connection.query(updateStockSql, [detail.product_quantity, detail.product_id], (err) => {
+                if (err) reject(err);
+                else resolve();
               });
             });
           });
-        }
-      );
+
+          // Execute stock updates
+          Promise.all(stockUpdates)
+            .then(() => {
+              // Delete items from cart after successful order
+              const deleteCartSql = "DELETE FROM cart_items WHERE client_id = ?";
+              connection.query(deleteCartSql, [client_id], (err) => {
+                if (err) {
+                  return connection.rollback(() => {
+                    connection.release();
+                    res.status(500).json({ error: "Error deleting cart items" });
+                  });
+                }
+
+                // Commit transaction
+                connection.commit((err) => {
+                  if (err) {
+                    return connection.rollback(() => {
+                      connection.release();
+                      res.status(500).json({ error: "Error committing transaction" });
+                    });
+                  }
+
+                  connection.release();
+                  res.status(200).json({
+                    message: "Order created successfully",
+                    orderId: orderId,
+                  });
+                });
+              });
+            })
+            .catch((err) => {
+              return connection.rollback(() => {
+                connection.release();
+                res.status(500).json({ error: "Error updating product stocks" });
+              });
+            });
+        });
+      });
     });
   });
 });
 
 // Get orders that are not delivered
-app.get("/pending-order", (req, res) => {
-  const sql = "SELECT * FROM orders WHERE status != 'Delivered'";
-  executeQuery(sql, [], res);
+app.get("/pending-order/:id", (req, res) => {
+  const { id } = req.params;
+  const sql = "SELECT O.id as order_id, O.client_id as client_id, O.total_amount, O.status as order_status, O.created_at as order_date, OD.product_id, OD.product_quantity as quantity, OD.unit_price, OD.sub_total as sub_total, P.name as product_name, P.image_link as image_link FROM orders O JOIN order_details OD ON O.id = OD.order_id JOIN products P ON OD.product_id = P.id WHERE O.status != 'Delivered' AND O.client_id = ?";
+  executeQuery(sql, [id], res);
 });
 
-app.get("/order-details/:id", (req, res) => {
-  const { id } = req.params;
-  const sql = "SELECT * FROM order_details WHERE order_id = ?";
-  executeQuery(sql, [id], res);
+app.get("/order-details", (req, res) => {
+  const sql = "SELECT * FROM order_details";
+  executeQuery(sql, [], res);
 });
 
 // ------------------ EMAIL VERIFICATION ------------------- //

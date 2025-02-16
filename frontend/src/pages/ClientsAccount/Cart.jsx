@@ -3,6 +3,7 @@ import ClientInterfaceNavBar from '../../components/clients-components/ClientInt
 import ClientFooter from '../../components/clients-components/ClientFooter';
 import { MdDeleteForever } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+import { formatDateToPHT, formatToPeso } from '../../CustomFunctions';
 
 const Cart = () => {
   const [user, setUser] = useState(null);
@@ -77,6 +78,7 @@ const Cart = () => {
   const handleBuyNowModal = () => {
     setShowBuyNowModal(true);
     setTotalPrice(selectedOrders.reduce((total, order) => total + (parseFloat(order.unit_price) * order.quantity), 0));
+    console.log(selectedOrders);
   };
 
   const handleConfirmOrder = async () => {
@@ -89,36 +91,21 @@ const Cart = () => {
         body: JSON.stringify({
           client_id: localStorage.getItem('userId'),
           total_amount: totalPrice,
-          order_details: selectedOrders.map(order => ({
-            product_id: order.id,
-            product_quantity: order.quantity,
-            unit_price: order.unit_price,
-            sub_total: order.quantity * order.unit_price
+          order_details: selectedOrders.map(orderdetail => ({
+            product_id: orderdetail.product_id,
+            product_quantity: orderdetail.quantity,
+            unit_price: orderdetail.unit_price,
+            sub_total: orderdetail.quantity * orderdetail.unit_price
           }))
         })
-      }
-      )
+      })
       if (response.ok) {
         alert("Order confirmed successfully!");
-        navigate("/");
+        navigate("/clientorders");
       };
     } catch (error) {
       console.error('Error confirming order:', error);
     }
-  };
-
-  const formatDateToPHT = (dateString) => {
-    const date = new Date(dateString);
-    date.setHours(date.getHours() + 8);
-    return date.toLocaleString("en-PH", {
-      timeZone: "Asia/Manila", // Convert to Philippine Time (PHT)
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
   };
 
   return (
@@ -126,7 +113,7 @@ const Cart = () => {
       <ClientInterfaceNavBar />
       <div className='px-20 mt-10 mb-10 flex-grow'>
         <div className='flex items-center justify-between'>
-          <h1 className='text-[#E0EF8F] text-[35px] font-semibold'>Order History</h1>
+          <h1 className='text-[#E0EF8F] text-[35px] font-semibold'>Cart</h1>
           <button
             onClick={() => selectedOrders.length > 0 && handleBuyNowModal()}
             disabled={selectedOrders.length === 0}
@@ -153,7 +140,7 @@ const Cart = () => {
               </div>
               <div className='text-center'>
                 <h1 className='text-[18px] font-semibold'>Price</h1>
-                <p>₱ {parseFloat(order.unit_price).toFixed(2)}</p>
+                <p>{formatToPeso(order.unit_price)}</p>
               </div>
               <div className='text-center'>
                 <h1 className='text-[18px] font-semibold'>Date & Time</h1>
@@ -193,12 +180,12 @@ const Cart = () => {
                     <img src={order.image_link} alt={order.name} className='w-10 h-10 rounded-md' />
                     <p>{order.name} (x{order.quantity})</p>
                   </div>
-                  <p>₱ {parseFloat(order.unit_price).toFixed(2)}</p>
+                  <p>{formatToPeso(order.unit_price)}</p>
                 </div>
               ))}
             </div>
             <div className='mt-4 text-lg font-semibold'>
-              Total: ₱ {totalPrice.toFixed(2)}
+              Total: {formatToPeso(totalPrice)}
             </div>
             <input type='text' placeholder='Full Name' value={user.first_name + " " + user.middle_name.charAt(0).toUpperCase() + ". " + user.last_name} className='w-full p-2 mt-2 border rounded-md' required />
             <input type='text' placeholder='Contact Number' value={user.phone_number} className='w-full p-2 mt-2 border rounded-md' required />

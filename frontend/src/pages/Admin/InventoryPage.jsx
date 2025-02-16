@@ -12,6 +12,7 @@ import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import EditItemModal from "../../components/modals/EditItemModal";
 import DeleteItemModal from "../../components/modals/DeleteItemModal";
 import { useNavigate } from "react-router-dom";
+import { formatToPeso } from "../../CustomFunctions";
 
 function InventoryPage() {
 
@@ -155,7 +156,7 @@ function InventoryPage() {
                           <td class="px-4 py-2">{product.sku}</td>
                           <td class="px-4 py-2">{product.name}</td>
                           <td class="px-4 py-2">{categories.find(category => category.id === product.category_id)?.name}</td>
-                          <td class="px-4 py-2">₱ {product.price}</td>
+                          <td class="px-4 py-2">{formatToPeso(product.price)}</td>
                           <td class="px-4 py-2">{product.measurement}</td>
                           <td class="px-4 py-2">{product.stocks}</td>
                           <td class="px-4 py-2">

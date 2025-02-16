@@ -3,28 +3,11 @@ import ClientInterfaceNavBar from '../../components/clients-components/ClientInt
 import ClientFooter from '../../components/clients-components/ClientFooter';
 import { MdDeleteForever } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
+import { formatDateToPHT, formatToPeso } from '../../CustomFunctions';
 
 const Orders = () => {
-  const [orders, setOrders] = useState([  
-    {
-      id: 'ORD-3RYXOBQ23',
-      name: 'Boba Pearl',
-      image: '/assets/images/bobapearl.png',
-      quantity: 2,
-      price: '$5.99',
-      status: 'Processing',
-      date: 'Jan 22, 2025'
-    },
-    {
-      id: 'ORD-8KLYZOP98',
-      name: 'Boba Pearl',
-      image: '/assets/images/bobapearl.png',
-      quantity: 1,
-      price: '$4.50',
-      status: 'Shipped',
-      date: 'Jan 20, 2025'
-    }
-  ]);
+
+  const [orders, setOrders] = useState([]);
 
   const navigate = useNavigate();
 
@@ -37,6 +20,18 @@ const Orders = () => {
     else if (userType !== 'client') {
       navigate('/error');
     }
+
+    const getOrders = async () => {
+      try {
+        const response = await fetch("http://localhost:8081/pending-order/" + localStorage.getItem('userId'));
+        const data = await response.json();
+        setOrders(data);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    getOrders();
   }, []);
 
   const [showModal, setShowModal] = useState(false);
@@ -64,11 +59,11 @@ const Orders = () => {
             <div key={index} className="bg-[#E0EF8F] w-full p-5 flex items-center space-x-24 rounded-lg shadow-md">
               <input type="checkbox" />
               <div className="w-24">
-                <img src={order.image} alt={order.name} className="w-full rounded-md" />
+                <img src={order.image_link} alt={order.product_name} className="w-full rounded-md" />
               </div>
               <div className="flex-1">
-                <h1 className="text-[20px] font-semibold">{order.name}</h1>
-                <p className="text-gray-700">{order.id}</p>
+                <h1 className="text-[20px] font-semibold">{order.product_name}</h1>
+                <p className="text-gray-700">Order ID: {order.order_id}</p>
               </div>
               <div className="text-center">
                 <h1 className="text-[18px] font-semibold">Quantity</h1>
@@ -76,15 +71,15 @@ const Orders = () => {
               </div>
               <div className="text-center">
                 <h1 className="text-[18px] font-semibold">Price</h1>
-                <p>{order.price}</p>
+                <p>{formatToPeso(order.sub_total)}</p>
               </div>
               <div className="text-center">
                 <h1 className="text-[18px] font-semibold">Status</h1>
-                <p>{order.status}</p>
+                <p>{order.order_status}</p>
               </div>
               <div className="text-center">
                 <h1 className="text-[18px] font-semibold">Date</h1>
-                <p>{order.date}</p>
+                <p>{formatDateToPHT(order.order_date)}</p>
               </div>
               <div>
                 <MdDeleteForever 

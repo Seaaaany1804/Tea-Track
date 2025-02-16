@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ClientInterfaceNavBar from '../../components/clients-components/ClientInterfaceNavBar';
 import ClientFooter from '../../components/clients-components/ClientFooter';
 import { FaMinus, FaPlus } from "react-icons/fa";
@@ -8,6 +8,10 @@ const BuyItem = () => {
     const location = useLocation();
     const item = location.state?.item;
     const [quantity, setQuantity] = useState(1);
+
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    });
 
     const navigate = useNavigate();
 

@@ -3,6 +3,7 @@ import Navbar from '../../components/NavBar';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 import { MdSort } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
+import { formatDateToPHT } from '../../CustomFunctions';
 
 function LogPage() {
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,20 +25,6 @@ function LogPage() {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
     }
-  };
-
-  const formatDateToPHT = (dateString) => {
-    const date = new Date(dateString);
-    date.setHours(date.getHours() + 8);
-    return date.toLocaleString("en-PH", {
-      timeZone: "Asia/Manila", // Convert to Philippine Time (PHT)
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
   };
 
   const navigate = useNavigate();
