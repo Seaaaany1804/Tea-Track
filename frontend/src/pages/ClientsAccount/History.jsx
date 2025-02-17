@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ClientInterfaceNavBar from '../../components/clients-components/ClientInterfaceNavBar';
 import ClientFooter from '../../components/clients-components/ClientFooter';
 import { useNavigate } from 'react-router-dom';
+import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
 
 const History = () => {
   const navigate = useNavigate();
@@ -19,84 +20,136 @@ const History = () => {
 
   const [orders, setOrders] = useState([
     {
-      id: 'ORD-3RYXOBQ23',
-      name: 'Tea Track Boba Pearl Tea',
-      image: '/assets/images/bobapearl.png',
-      quantity: 'x23',
-      itemprice:'P200',
-      price: 'P400',
-      dateandtime:'8:22PM 2/12/2024',
+      id: 'ORD-3L5BQJRVS',
+      customer: 'Michael Cruz',
+      itemCount: '(2 Items)',
+      date: '11/16/2024 7:21AM',
       status: 'Completed',
-      weight: '600g'
+      items: [
+        {
+          name: 'Boba Pearl',
+          category: 'Add-ons',
+          number: '#1',
+          quantity: 1,
+          image: '/assets/images/bobapearl.png'
+        },
+        {
+          name: 'Straw',
+          category: 'Add-ons',
+          number: '#2',
+          quantity: 1,
+          image: '/assets/images/bobapearl.png'
+        }
+      ],
+      totalPrice: 'P399.00'
     },
     {
-      id: 'ORD-3RYXOBQ23',
-      name: 'Tea Track Boba Pearl Tea',
-      image: '/assets/images/bobapearl.png',
-      quantity: 'x23',
-      price: 'P400',
-      dateandtime:'8:22PM 2/12/2024',
+      id: 'ORD-9K73MPQ2L',
+      customer: 'Sarah Miller',
+      itemCount: '(1 Item)',
+      date: '11/17/2024 2:15PM',
       status: 'Completed',
-      weight: '600g'
-    }
+      items: [
+        {
+          name: 'Boba Pearl',
+          category: 'Add-ons',
+          number: '#1',
+          quantity: 1,
+          image: '/assets/images/bobapearl.png'
+        }
+      ],
+      totalPrice: 'P459.50'
+    },
   ]);
 
   return (
-    <div className="bg-[#0D2F26] min-h-screen flex flex-col">
+    <div className="bg-[#14463A] h-[120vh] flex flex-col">
       <ClientInterfaceNavBar />
-      <div className="flex-1 px-20 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-[#E0EF8F] text-3xl font-semibold">Order History</h1>
-          <div className="text-[#E0EF8F]">
-            <span className="mr-2">Sort By:</span>
-            <select className="bg-transparent border border-[#E0EF8F] rounded px-2 py-1">
-              <option value="date">Date</option>
-              <option value="status">Status</option>
-            </select>
+      <div className='px-24 mt-10'>
+        <div className=" bg-white flex-1 py-8 px-24 rounded-[10px]">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-2xl font-bold">Orders</h1>
+            <div className="relative">
+              <button className="border rounded px-4 py-2 flex items-center gap-2">
+                Sort By <span className="text-xs">▼</span>
+              </button>
+            </div>
+          </div>
+  
+          {orders.map((order, index) => (
+            <div key={index} className="border rounded-lg mb-6 overflow-hidden">
+              <div className="p-4 border-b bg-gray-50">
+                <div className="flex items-start">
+                  <input type="checkbox" className="mt-1 mr-4" />
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="ttext-[#14463A] ont-medium">{order.customer}</span>
+                        <span className="text-[#14463A] ml-2">{order.itemCount}</span>
+                      </div>
+                      <span className='px-3 py-1 bg-green-100 rounded-full text-md text-green-600'>
+                        {order.status}
+                      </span>
+                    </div>
+                    <div className="text-[#14463A] text-sm mt-1">Order Number: {order.id} • {order.date}</div>
+                  </div>
+                </div>
+              </div>
+  
+              {order.items.map((item, idx) => (
+                <div key={idx} className="flex p-4 border-b">
+                  <div className="flex-shrink-0 w-16 h-16 mr-4">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium">{item.name}</h3>
+                    <p className="text-[#14463A] text-sm">Category: {item.category}</p>
+                    <p className="text-[#14463A] text-sm">{item.number} × {item.quantity}</p>
+                  </div>
+                  <div className="text-right flex items-center">
+                    {idx === 0 && <span className="font-semibold">{order.totalPrice}</span>}
+                    {idx === 0 && <span className="ml-2 text-gray-400">▶</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+                {/* Pagination (non-functional, just for design) */}
+        <div className="max-w-[100rem] mx-auto mt-10 mb-10">
+          <div className="mt-8 flex justify-between items-center">
+            <div className="text-sm text-gray-500">
+              Showing <span className="font-medium">1</span> to <span className="font-medium">3</span> of <span className="font-medium">25</span> orders
+            </div>
+            <div className="flex items-center space-x-1">
+              <button className="px-3 py-2 border border-gray-300 rounded-md text-gray-500 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <FaAngleLeft className="h-4 w-4" />
+              </button>
+              <button className="px-3 py-2 border border-gray-300 rounded-md bg-[blue-600] text-white font-medium ">
+                1
+              </button>
+              <button className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                2
+              </button>
+              <button className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                3
+              </button>
+              <button className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                4
+              </button>
+              <button className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                5
+              </button>
+              <button className="px-3 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <FaAngleRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
-
-        {orders.map((order, index) => (
-          <div key={index} className="bg-[#E0EF8F] rounded-xl p-6 px-12 mb-6 text-[#0D2F26] ">
-            <div className="flex justify-between items-center mb-4">
-              <div className='flex flex-col'>
-                <span className="text-[#0D2F26] text-xl font-bold">{order.id}</span>
-                <span className="text-[#0D2F26]">{order.dateandtime}</span>
-              </div>
-              <span className="text-green-600 text-xl">{order.status}</span>
-            </div>
-            
-            {/* Repeat the same item twice as shown in the image */}
-            {[1, 2].map((_, idx) => (
-              <div key={idx} className="flex items-center gap-4 mb-4 border-t-2  border-[#0D2F26] py-5">
-                <div className="w-32 h-32">
-                  <img 
-                    src={order.image} 
-                    alt={order.name}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                </div>
-                <div className="flex-1">
-                  <div className='flex gap-2 items-center'>
-                    <h3 className="font-medium text-lg">{order.name}</h3>
-                    <span className="text-gray-600">{order.quantity}</span>
-                  </div>
-                  <p className="text-gray-600 text-sm">{order.weight}</p>
-                </div>
-                <div className="text-right">
-                  <span className="text-[#0D2F26] text-xl">{order.itemprice}</span>
-                </div>
-              </div>
-            ))}
-            
-            <div className="flex justify-end mt-2">
-              <div className="text-right flex items-center gap-5">
-                <p className="text-md text-gray-600">Total 2 items:</p>
-                <p className="font-bold text-xl">Total: {order.price}</p>
-              </div>
-            </div>
-          </div>
-        ))}
       </div>
       <ClientFooter />
     </div>
