@@ -16,11 +16,16 @@ cd Tea-Track
 Create a `.env` file in the root directory for both frontend and backend. Follow the file template below.
 
 ```env
-PORT=8081
-HOST=localhost
-USER=root
-PASSWORD=
-DATABASE=<database_name>
+PORT="8081"
+DB_HOST="<database_host_url>"
+DB_NAME="<database_name>"
+DB_USER="<database_user>"
+DB_PASSWORD="<database_password>"
+
+EMAIL_USER="<email_address>"
+EMAIL_PASSWORD="<email_password>"
+EMAIL_NUMBER="<email_phone_number"
+EMAIL_APP_PASSWORD="<email_app_password>"
 ```
 ### 3. Install Dependencies
 
