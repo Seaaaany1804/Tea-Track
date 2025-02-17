@@ -1,9 +1,5 @@
 # Project Setup Guide
 
-## Requirements
-
-- Node.js v20.18.3 (LTS)
-
 Follow these steps to set up and run Tea Track on your local machine.
 
 ---
