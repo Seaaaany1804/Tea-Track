@@ -1,5 +1,9 @@
 # Project Setup Guide
 
+## Requirements
+
+- Node.js v20.18.3 (LTS)
+
 Follow these steps to set up and run Tea Track on your local machine.
 
 ---
@@ -29,6 +33,8 @@ Frontend
 ```bash
 cd frontend
 npm install
+npm install react-scripts react-router-dom react-barcode --legacy-peer-deps
+npm audit fix --force
 ```
 
 Backend
@@ -45,7 +51,7 @@ Ensure the database is running, through XAMPP.
 
 ```bash
 cd backend
-npm run start
+npm start
 ```
 
 Start the Frontend
