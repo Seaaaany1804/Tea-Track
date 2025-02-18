@@ -319,8 +319,73 @@ app.get("/pending-order/:id", (req, res) => {
 });
 
 app.get("/orders", (req, res) => {
-  const sql = "SELECT O.id as order_id, O.client_id as client_id, O.total_amount, O.status as order_status, O.created_at as order_date, OD.product_id, OD.product_quantity as quantity, OD.unit_price, OD.sub_total as sub_total, P.name as product_name, P.image_link as image_link FROM orders O JOIN order_details OD ON O.id = OD.order_id JOIN products P ON OD.product_id = P.id"
-  executeQuery(sql, [], res);
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error("Database connection error:", err);
+      return res.status(500).json({ error: "Database connection error" });
+    }
+
+    // First, get all unique orders
+    const ordersSql = `
+      SELECT DISTINCT 
+        O.id as orderId,
+        O.total_amount as totalAmount,
+        O.created_at as timestamp,
+        O.status,
+        U.first_name,
+        U.last_name,
+        U.address
+      FROM orders O
+      JOIN users U ON O.client_id = U.id
+      ORDER BY O.created_at DESC
+    `;
+
+    connection.query(ordersSql, (err, orders) => {
+      if (err) {
+        connection.release();
+        return res.status(500).json({ error: "Error fetching orders" });
+      }
+
+      // Then, get all order details for these orders
+      const detailsSql = `
+        SELECT 
+          OD.order_id,
+          P.name,
+          P.image_link as image,
+          P.category_id as category,
+          OD.product_quantity as quantity
+        FROM order_details OD
+        JOIN products P ON OD.product_id = P.id
+      `;
+
+      connection.query(detailsSql, (err, details) => {
+        connection.release();
+        if (err) {
+          return res.status(500).json({ error: "Error fetching order details" });
+        }
+
+        // Format the response to match the frontend structure
+        const formattedOrders = orders.map(order => ({
+          orderId: order.orderId,
+          totalAmount: order.totalAmount,
+          items: details
+            .filter(detail => detail.order_id === order.orderId)
+            .map(detail => ({
+              name: detail.name,
+              quantity: detail.quantity,
+              category: detail.category,
+              image: detail.image
+            })),
+          timestamp: order.timestamp,
+          address: order.address,
+          customerName: `${order.first_name} ${order.last_name}`,
+          status: order.status
+        }));
+
+        res.json(formattedOrders);
+      });
+    });
+  });
 });
 
 app.get("/order-details", (req, res) => {
@@ -379,6 +444,13 @@ app.delete("/orders/:id", (req, res) => {
       });
     });
   });
+});
+
+app.put("/set-order-status/:id", (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  const sql = "UPDATE orders SET status = ? WHERE id = ?";
+  executeQuery(sql, [status, id], res);
 });
 
 // ------------------ EMAIL VERIFICATION ------------------- //
