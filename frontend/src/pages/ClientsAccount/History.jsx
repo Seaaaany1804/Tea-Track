@@ -21,7 +21,6 @@ const History = () => {
   const [orders, setOrders] = useState([
     {
       id: 'ORD-3L5BQJRVS',
-      customer: 'Michael Cruz',
       itemCount: '(2 Items)',
       date: '11/16/2024 7:21AM',
       status: 'Completed',
@@ -45,7 +44,6 @@ const History = () => {
     },
     {
       id: 'ORD-9K73MPQ2L',
-      customer: 'Sarah Miller',
       itemCount: '(1 Item)',
       date: '11/17/2024 2:15PM',
       status: 'Completed',
@@ -84,14 +82,14 @@ const History = () => {
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="ttext-[#14463A] ont-medium">{order.customer}</span>
+                        <span className="ttext-[#14463A] ont-medium">{order.id}</span>
                         <span className="text-[#14463A] ml-2">{order.itemCount}</span>
                       </div>
                       <span className='px-3 py-1 bg-green-100 rounded-full text-md text-green-600'>
                         {order.status}
                       </span>
                     </div>
-                    <div className="text-[#14463A] text-sm mt-1">Order Number: {order.id} • {order.date}</div>
+                    <div className="text-[#14463A] text-sm mt-1">{order.date}</div>
                   </div>
                 </div>
               </div>
