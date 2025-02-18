@@ -42,9 +42,22 @@ const Orders = () => {
     setShowModal(true);
   };
 
-  const confirmDelete = () => {
-    setOrders(orders.filter(order => order.id !== orderToDelete.id));
+  const confirmDelete = async () => {
+    setOrders(orders.filter(order => order.order_id !== orderToDelete.order_id)); 
     setShowModal(false);
+    try {
+      const response = await fetch(`http://localhost:8081/orders/${orderToDelete.order_id}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        console.log('Order deleted successfully');
+      } else {
+        console.error('Failed to delete order');
+      }
+    } catch (error) {
+      console.error('Error deleting order:', error);
+    }
+
   };
 
   return (

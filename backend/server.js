@@ -207,10 +207,6 @@ app.post("/logs", (req, res) => {
 
 // ------------------ ORDERS ROUTES ------------------- //
 
-app.get("/orders", (req, res) => {
-  executeQuery("SELECT * FROM orders", [], res);
-});
-
 app.post("/orders", (req, res) => {
   const { client_id, total_amount, order_details } = req.body;
 
@@ -322,9 +318,67 @@ app.get("/pending-order/:id", (req, res) => {
   executeQuery(sql, [id], res);
 });
 
+app.get("/orders", (req, res) => {
+  const sql = "SELECT O.id as order_id, O.client_id as client_id, O.total_amount, O.status as order_status, O.created_at as order_date, OD.product_id, OD.product_quantity as quantity, OD.unit_price, OD.sub_total as sub_total, P.name as product_name, P.image_link as image_link FROM orders O JOIN order_details OD ON O.id = OD.order_id JOIN products P ON OD.product_id = P.id"
+  executeQuery(sql, [], res);
+});
+
 app.get("/order-details", (req, res) => {
   const sql = "SELECT * FROM order_details";
   executeQuery(sql, [], res);
+});
+
+app.delete("/orders/:id", (req, res) => {
+  const { id } = req.params;
+
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error("Database connection error:", err);
+      return res.status(500).json({ error: "Database connection error" });
+    }
+
+    connection.beginTransaction((err) => {
+      if (err) {
+        connection.release();
+        return res.status(500).json({ error: "Error starting transaction" });
+      }
+
+      // First delete order details
+      const deleteDetailsSql = "DELETE FROM order_details WHERE order_id = ?";
+      connection.query(deleteDetailsSql, [id], (err) => {
+        if (err) {
+          return connection.rollback(() => {
+            connection.release();
+            res.status(500).json({ error: "Error deleting order details" });
+          });
+        }
+
+        // Then delete the order
+        const deleteOrderSql = "DELETE FROM orders WHERE id = ?";
+        connection.query(deleteOrderSql, [id], (err) => {
+          if (err) {
+            return connection.rollback(() => {
+              connection.release();
+              res.status(500).json({ error: "Error deleting order" });
+            });
+          }
+
+          // Commit the transaction
+          connection.commit((err) => {
+            if (err) {
+              return connection.rollback(() => {
+                connection.release();
+                res.status(500).json({ error: "Error committing transaction" });
+              });
+            }
+
+            connection.release();
+            res.json({ message: "Order deleted successfully" });
+          });
+        });
+      });
+    });
+  });
 });
 
 // ------------------ EMAIL VERIFICATION ------------------- //
