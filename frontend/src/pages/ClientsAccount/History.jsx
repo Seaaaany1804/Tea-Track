@@ -3,6 +3,7 @@ import ClientInterfaceNavBar from '../../components/clients-components/ClientInt
 import ClientFooter from '../../components/clients-components/ClientFooter';
 import { useNavigate } from 'react-router-dom';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
+import { formatDateToPHT, formatToPeso } from '../../CustomFunctions';
 
 const History = () => {
   const navigate = useNavigate();
@@ -18,54 +19,23 @@ const History = () => {
     }
   }, []);
 
-  const [orders, setOrders] = useState([
-    {
-      id: 'ORD-3L5BQJRVS',
-      itemCount: '(2 Items)',
-      date: '11/16/2024 7:21AM',
-      status: 'Completed',
-      items: [
-        {
-          name: 'Boba Pearl',
-          category: 'Add-ons',
-          number: '#1',
-          quantity: 1,
-          image: '/assets/images/bobapearl.png'
-        },
-        {
-          name: 'Straw',
-          category: 'Add-ons',
-          number: '#2',
-          quantity: 1,
-          image: '/assets/images/bobapearl.png'
-        }
-      ],
-      totalPrice: 'P399.00'
-    },
-    {
-      id: 'ORD-9K73MPQ2L',
-      itemCount: '(1 Item)',
-      date: '11/17/2024 2:15PM',
-      status: 'Completed',
-      items: [
-        {
-          name: 'Boba Pearl',
-          category: 'Add-ons',
-          number: '#1',
-          quantity: 1,
-          image: '/assets/images/bobapearl.png'
-        }
-      ],
-      totalPrice: 'P459.50'
-    },
-  ]);
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const response = await fetch(`http://localhost:8081/delivered-order/${localStorage.getItem('userId')}`);
+      const data = await response.json();
+      setOrders(data);
+    };  
+    fetchOrders();
+  }, []);
 
   return (
     <div className="bg-[#14463A] h-[120vh] flex flex-col">
       <ClientInterfaceNavBar />
       <div className='px-24 mt-10'>
         <div className=" bg-white flex-1 py-8 px-24 rounded-[10px]">
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-center pb-6">
             <h1 className="text-2xl font-bold">Orders</h1>
             <div className="relative">
               <button className="border rounded px-4 py-2 flex items-center gap-2">
@@ -82,14 +52,14 @@ const History = () => {
                   <div className="flex-1">
                     <div className="flex justify-between items-center">
                       <div>
-                        <span className="ttext-[#14463A] ont-medium">{order.id}</span>
+                        <span className="text-[#14463A] font-medium">Order ID: {order.id}</span>
                         <span className="text-[#14463A] ml-2">{order.itemCount}</span>
                       </div>
                       <span className='px-3 py-1 bg-green-100 rounded-full text-md text-green-600'>
                         {order.status}
                       </span>
                     </div>
-                    <div className="text-[#14463A] text-sm mt-1">{order.date}</div>
+                    <div className="text-[#14463A] text-sm mt-1">{formatDateToPHT(order.date)}</div>
                   </div>
                 </div>
               </div>
@@ -109,7 +79,7 @@ const History = () => {
                     <p className="text-[#14463A] text-sm">{item.number} × {item.quantity}</p>
                   </div>
                   <div className="text-right flex items-center">
-                    {idx === 0 && <span className="font-semibold">{order.totalPrice}</span>}
+                    {idx === 0 && <span className="font-semibold">{formatToPeso(order.totalPrice)}</span>}
                     {idx === 0 && <span className="ml-2 text-gray-400">▶</span>}
                   </div>
                 </div>

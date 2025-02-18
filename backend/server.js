@@ -393,6 +393,87 @@ app.get("/order-details", (req, res) => {
   executeQuery(sql, [], res);
 });
 
+app.get("/delivered-order/:id", (req, res) => {
+  const { id } = req.params;
+  
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error("Database connection error:", err);
+      return res.status(500).json({ error: "Database connection error" });
+    }
+
+    // First get the orders
+    const ordersSql = `
+      SELECT 
+        O.id,
+        O.total_amount,
+        O.created_at,
+        O.status
+      FROM orders O
+      WHERE O.status = 'Delivered' 
+      AND O.client_id = ?
+      ORDER BY O.created_at DESC
+    `;
+
+    connection.query(ordersSql, [id], (err, orders) => {
+      if (err) {
+        connection.release();
+        return res.status(500).json({ error: "Error fetching orders" });
+      }
+
+      // Then get the order details for all orders
+      const detailsSql = `
+        SELECT 
+          OD.order_id,
+          P.name,
+          P.category_id,
+          P.image_link,
+          OD.product_quantity,
+          PC.name as category_name
+        FROM order_details OD
+        JOIN products P ON OD.product_id = P.id
+        JOIN product_categories PC ON P.category_id = PC.id
+        WHERE OD.order_id IN (?)
+      `;
+
+      const orderIds = orders.map(order => order.id);
+      
+      if (orderIds.length === 0) {
+        connection.release();
+        return res.json([]);
+      }
+
+      connection.query(detailsSql, [orderIds], (err, details) => {
+        connection.release();
+        if (err) {
+          return res.status(500).json({ error: "Error fetching order details" });
+        }
+
+        // Format the response to match the frontend structure
+        const formattedOrders = orders.map(order => {
+          const orderItems = details.filter(detail => detail.order_id === order.id);
+          return {
+            id: order.id,
+            itemCount: `(${orderItems.length} ${orderItems.length === 1 ? 'Item' : 'Items'})`,
+            date: order.created_at,
+            status: 'Completed',
+            items: orderItems.map((item, index) => ({
+              name: item.name,
+              category: item.category_name,
+              number: `#${index + 1}`,
+              quantity: item.product_quantity,
+              image: item.image_link
+            })),
+            totalPrice: order.total_amount
+          };
+        });
+
+        res.json(formattedOrders);
+      });
+    });
+  });
+});
+
 app.delete("/orders/:id", (req, res) => {
   const { id } = req.params;
 
