@@ -2,6 +2,7 @@ CREATE TABLE users (
   id INT PRIMARY KEY AUTO_INCREMENT,
   username VARCHAR(255) NOT NULL,
   phone_number VARCHAR(20),
+  address TEXT,
   first_name VARCHAR(255),
   middle_name VARCHAR(255),
   last_name VARCHAR(255),
