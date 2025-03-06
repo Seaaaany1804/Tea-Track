@@ -13,7 +13,7 @@ cd Tea-Track
 ```
 
 ### 2. Set Up Environment Variables
-Create a `.env` file in the root directory for both frontend and backend. Follow the file template below.
+Create a `.env` file in the root directory. Follow the file template below.
 
 ```env
 PORT="8081"
@@ -38,31 +38,20 @@ npm install react-scripts react-router-dom react-barcode --legacy-peer-deps
 npm audit fix --force
 ```
 
-Backend
+Root Directory
 
 ```bash
-cd backend
-npm install express mysql cors nodemon nodemailer
+npm install dotenv express mysql cors nodemon nodemailer --legacy-peer-deps
 ```
 
 ### 4. Run the System
 
-Start the Backend\
-Ensure the database is running, through XAMPP.
+Go to the Root Directory
 
 ```bash
-cd backend
-npm start
-```
-
-Start the Frontend
-
-```bash
-cd frontend
 npm start
 ```
 
 ## Access the Application
 
-- **Frontend:** Open `http://localhost:3000` in your browser.
-- **Backend:** The API runs at `http://localhost:8081`.
+- **Frontend and Backend:** Open `http://localhost:8081` in your browser.
