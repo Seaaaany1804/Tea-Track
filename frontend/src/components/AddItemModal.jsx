@@ -8,7 +8,7 @@ function AddItemModal({ isOpen, closeModal }) {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const response = await fetch("http://localhost:8081/product-categories");
+      const response = await fetch("https://teatrackbackend.vercel.app/product-categories");
       const categories = await response.json();
       setCategories(categories);
     };
@@ -69,7 +69,7 @@ function AddItemModal({ isOpen, closeModal }) {
     }
 
     try {
-      const response = await fetch("http://localhost:8081/products", {
+      const response = await fetch("https://teatrackbackend.vercel.app/products", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +79,7 @@ function AddItemModal({ isOpen, closeModal }) {
 
       if (response.ok) {
         try {
-          const response = await fetch("http://localhost:8081/logs", {
+          const response = await fetch("https://teatrackbackend.vercel.app/logs", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

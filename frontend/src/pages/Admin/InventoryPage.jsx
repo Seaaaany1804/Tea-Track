@@ -40,12 +40,12 @@ function InventoryPage() {
     }
 
     const getProducts = async () => {
-      const response = await fetch("http://localhost:8081/products");
+      const response = await fetch("https://teatrackbackend.vercel.app/products");
       const data = await response.json();
       setProducts(data);
     };
     const getCategories = async () => {
-      const response = await fetch("http://localhost:8081/product-categories");
+      const response = await fetch("https://teatrackbackend.vercel.app/product-categories");
       const data = await response.json();
       setCategories(data);
     };
@@ -81,7 +81,7 @@ function InventoryPage() {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`http://localhost:8081/products/${id}`, {
+      const response = await fetch(`https://teatrackbackend.vercel.app/products/${id}`, {
         method: "DELETE",
       });
   

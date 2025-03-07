@@ -37,7 +37,7 @@ function OrderPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch("http://localhost:8081/orders");
+        const response = await fetch("https://teatrackbackend.vercel.app/orders");
         const data = await response.json();
         setOrderData(data);
       } catch (error) {
@@ -60,7 +60,7 @@ function OrderPage() {
   const handleConfirmDelivery = async () => {
     setShowDeliveryModal(false);
     const response = await fetch(
-      `http://localhost:8081/set-order-status/${selectedOrder?.orderId}`,
+      `https://teatrackbackend.vercel.app/set-order-status/${selectedOrder?.orderId}`,
       {
         method: "PUT",
         headers: {
@@ -77,7 +77,7 @@ function OrderPage() {
 
   const handleConfirmArchive = async () => {
     setShowArchiveModal(false);
-    const response = await fetch(`http://localhost:8081/set-order-status/${selectedOrder?.orderId}`, {
+    const response = await fetch(`https://teatrackbackend.vercel.app/set-order-status/${selectedOrder?.orderId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

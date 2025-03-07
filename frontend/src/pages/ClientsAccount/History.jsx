@@ -23,7 +23,7 @@ const History = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const response = await fetch(`http://localhost:8081/delivered-order/${localStorage.getItem('userId')}`);
+      const response = await fetch(`https://teatrackbackend.vercel.app/delivered-order/${localStorage.getItem('userId')}`);
       const data = await response.json();
       setOrders(data);
     };  

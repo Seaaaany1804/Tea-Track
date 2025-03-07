@@ -7,7 +7,7 @@ const OurStore = () => {
 
   useEffect(() => {
     const fetchStoreItems = async () => {
-      const response = await fetch("http://localhost:8081/products");
+      const response = await fetch("https://teatrackbackend.vercel.app/products");
       const data = await response.json();
       setStoreItems(data);
     };

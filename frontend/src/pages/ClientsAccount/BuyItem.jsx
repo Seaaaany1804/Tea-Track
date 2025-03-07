@@ -22,7 +22,7 @@ const BuyItem = () => {
 
     const handleAddToCart = async () => {
         try {
-            const response = await fetch("http://localhost:8081/cart-items", {
+            const response = await fetch("https://teatrackbackend.vercel.app/cart-items", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
