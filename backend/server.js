@@ -10,9 +10,6 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const reactBuildPath = path.join(__dirname, 'frontend', 'build');
-app.use(express.static(reactBuildPath));
-
 // Use a connection pool to manage MySQL connections automatically
 const db = mysql.createPool({
   connectionLimit: 10, // Adjust as needed
@@ -570,11 +567,6 @@ app.post("/api/verify-user", async (req, res) => {
     "UPDATE users SET is_verified = true WHERE id = ? AND email_address = ?";
 
   executeQuery(sql, [userId, email], res);
-});
-
-// Serve the React build files
-app.get('*', async (req, res) => {
-  res.sendFile(path.join(reactBuildPath, 'index.html'));
 });
 
 app.listen(process.env.PORT, () => {
