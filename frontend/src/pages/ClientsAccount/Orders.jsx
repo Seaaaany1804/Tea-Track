@@ -23,7 +23,7 @@ const Orders = () => {
 
     const getOrders = async () => {
       try {
-        const response = await fetch("http://localhost:8081/pending-order/" + localStorage.getItem('userId'));
+        const response = await fetch("https://teatrackbackend.vercel.app/pending-order/" + localStorage.getItem('userId'));
         const data = await response.json();
         setOrders(data);
       } catch (error) {
@@ -46,7 +46,7 @@ const Orders = () => {
     setOrders(orders.filter(order => order.order_id !== orderToDelete.order_id)); 
     setShowModal(false);
     try {
-      const response = await fetch(`http://localhost:8081/orders/${orderToDelete.order_id}`, {
+      const response = await fetch(`https://teatrackbackend.vercel.app/orders/${orderToDelete.order_id}`, {
         method: 'DELETE',
       });
       if (response.ok) {

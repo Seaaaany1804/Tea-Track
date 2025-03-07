@@ -58,7 +58,7 @@ function RegisterPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:8081/users', {
+      const response = await fetch('https://teatrackbackend.vercel.app/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

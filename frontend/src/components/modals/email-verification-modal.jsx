@@ -31,7 +31,7 @@ function EmailVerificationModal({ email, userId, onClose }) {
         code: newCode
       });
       
-      const response = await fetch('http://localhost:8081/api/send-verification', {
+      const response = await fetch('https://teatrackbackend.vercel.app/api/send-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -110,7 +110,7 @@ function EmailVerificationModal({ email, userId, onClose }) {
     if (enteredCode === verificationCode) {
       try {
         setIsLoading(true);
-        const response = await fetch('http://localhost:8081/api/verify-user', {
+        const response = await fetch('https://teatrackbackend.vercel.app/api/verify-user', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 

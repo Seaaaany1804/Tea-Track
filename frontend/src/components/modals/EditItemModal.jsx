@@ -41,7 +41,7 @@ function EditItemModal({ isOpen, closeModal, item }) {
 
   const handleSave = () => {
     const updateItem = async () => {
-      const response = await fetch(`http://localhost:8081/products/${formData.id}`, {
+      const response = await fetch(`https://teatrackbackend.vercel.app/products/${formData.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"

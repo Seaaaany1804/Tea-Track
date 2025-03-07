@@ -43,7 +43,7 @@ function LogPage() {
 
     const fetchLogs = async () => {
       try {
-        const response = await fetch("http://localhost:8081/logs");
+        const response = await fetch("https://teatrackbackend.vercel.app/logs");
         const data = await response.json();
         setLogs(data);
       } catch (error) {

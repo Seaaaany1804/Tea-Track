@@ -27,7 +27,7 @@ const Cart = () => {
 
     const getUser = async () => {
       try {
-        const response = await fetch('http://localhost:8081/users/' + localStorage.getItem('userId'));
+        const response = await fetch('https://teatrackbackend.vercel.app/users/' + localStorage.getItem('userId'));
         const data = await response.json();
         setUser(data[0]);
       } catch (error) {
@@ -39,7 +39,7 @@ const Cart = () => {
 
     const getCartItems = async () => {
       try {
-        const response = await fetch('http://localhost:8081/cart-items/' + localStorage.getItem('userId'));
+        const response = await fetch('https://teatrackbackend.vercel.app/cart-items/' + localStorage.getItem('userId'));
         const data = await response.json();
         setOrders(data);
       } catch (error) {
@@ -60,7 +60,7 @@ const Cart = () => {
 
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`http://localhost:8081/cart-items/${id}`, {
+      const response = await fetch(`https://teatrackbackend.vercel.app/cart-items/${id}`, {
         method: "DELETE",
       });
       const data = await response.json();
@@ -83,7 +83,7 @@ const Cart = () => {
 
   const handleConfirmOrder = async () => {
     try {
-      const response = await fetch('http://localhost:8081/orders', {
+      const response = await fetch('https://teatrackbackend.vercel.app/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
