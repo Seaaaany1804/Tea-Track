@@ -51,9 +51,6 @@ function AddItemModal({ isOpen, closeModal }) {
       barcode,
     } = formData;
 
-
-    console.log(formData);
-
     if (
       !name ||
       !sku ||
@@ -90,7 +87,6 @@ function AddItemModal({ isOpen, closeModal }) {
             }),
           });
           if (response.ok) {
-            console.log("Item added successfully");
             closeModal(); // Close the modal after submitting
             window.location.reload();
           }
