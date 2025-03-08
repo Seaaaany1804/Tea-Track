@@ -50,7 +50,6 @@ const Orders = () => {
         method: 'DELETE',
       });
       if (response.ok) {
-        console.log('Order deleted successfully');
       } else {
         console.error('Failed to delete order');
       }

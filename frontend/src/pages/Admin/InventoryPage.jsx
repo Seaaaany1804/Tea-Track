@@ -194,7 +194,6 @@ function InventoryPage() {
         isOpen={isEditModalOpen}
         closeModal={closeEditModal}
         item={selectedItem}
-        onSave={(updatedItem) => console.log("Updated Item:", updatedItem)} // Replace with API call
       />
 
       <DeleteItemModal

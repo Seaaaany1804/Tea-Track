@@ -25,11 +25,6 @@ function EmailVerificationModal({ email, userId, onClose }) {
       // Generate new verification code and store it
       const newCode = generateVerificationCode();
       setVerificationCode(newCode);
-
-      console.log('Sending verification request:', {
-        email: email,
-        code: newCode
-      });
       
       const response = await fetch('https://teatrackbackend.vercel.app/api/send-verification', {
         method: 'POST',

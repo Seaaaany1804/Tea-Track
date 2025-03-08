@@ -64,7 +64,6 @@ const Cart = () => {
         method: "DELETE",
       });
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         setShowDeleteModal(false);
         setDeletedOrderId(null);
@@ -78,7 +77,6 @@ const Cart = () => {
   const handleBuyNowModal = () => {
     setShowBuyNowModal(true);
     setTotalPrice(selectedOrders.reduce((total, order) => total + (parseFloat(order.unit_price) * order.quantity), 0));
-    console.log(selectedOrders);
   };
 
   const handleConfirmOrder = async () => {

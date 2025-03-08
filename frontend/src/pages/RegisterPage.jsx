@@ -43,9 +43,6 @@ function RegisterPage() {
     e.preventDefault();
     const { username, phoneNumber, firstName, middleName, lastName, suffix, email, password, confirmPassword, agreeTerms } = formData;
 
-    // Add debug log
-    console.log('Form data before submission:', formData);
-
     // Form validation
     if (!username || !phoneNumber || !firstName || !lastName || !email || !password || !confirmPassword || !agreeTerms) {
       alert('Please fill out all required fields and accept the terms.');
@@ -78,10 +75,6 @@ function RegisterPage() {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Registration successful, showing modal with:', {
-          email: formData.email,
-          userId: data.userId
-        });
 
         setRegisteredUserId(data.userId);
         setShowModal(true);

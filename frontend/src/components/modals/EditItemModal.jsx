@@ -33,8 +33,6 @@ function EditItemModal({ isOpen, closeModal, item }) {
 
   }, [item]);
 
-  console.log(formData);
-
   const handleFormChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
