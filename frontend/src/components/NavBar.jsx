@@ -57,7 +57,7 @@ function Navbar() {
                         </Link>
                     </li>
                     <li>
-                        <Link to="/all-orders" className={getLinkStyle('/all-orders')}>
+                        <Link to="/orders" className={getLinkStyle('/orders')}>
                             Orders
                         </Link>
                     </li>

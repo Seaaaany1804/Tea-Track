@@ -11,6 +11,9 @@ function AddItemModal({ isOpen, closeModal }) {
       const response = await fetch("https://teatrackbackend.vercel.app/product-categories");
       const categories = await response.json();
       setCategories(categories);
+      if (categories.length > 0) {
+        setFormData(prev => ({ ...prev, category_id: categories[0].id }));
+      }
     };
 
     fetchCategories();
@@ -21,7 +24,7 @@ function AddItemModal({ isOpen, closeModal }) {
     sku: "",
     price: 0,
     stocks: 0,
-    category_id: 1,
+    category_id: "",
     measurement: "",
     image_link: "",
     barcode: "",
@@ -32,10 +35,18 @@ function AddItemModal({ isOpen, closeModal }) {
   const handleFormChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
+  
   const handleBarcodeGeneration = () => {
     const generatedBarcode = `ITEM-${Math.random().toString(36).substr(2, 9)}`; // Simple random barcode generation
-    setFormData({ ...formData, barcode: generatedBarcode, sku: categories[formData.category_id - 1].code + "-" + generatedBarcode.split('-')[1] });
+    const selectedCategory = categories.find(cat => cat.id === parseInt(formData.category_id));
+    
+    if (selectedCategory) {
+      setFormData({ 
+        ...formData, 
+        barcode: generatedBarcode, 
+        sku: selectedCategory.code + "-" + generatedBarcode.split('-')[1] 
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -75,24 +86,8 @@ function AddItemModal({ isOpen, closeModal }) {
       });
 
       if (response.ok) {
-        try {
-          const response = await fetch("https://teatrackbackend.vercel.app/logs", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              description: `Added: ${name}`,
-              action: "Add Item",
-            }),
-          });
-          if (response.ok) {
-            closeModal(); // Close the modal after submitting
-            window.location.reload();
-          }
-        } catch (error) {
-          console.error("Error submitting log:", error);
-        }
+        closeModal(); // Close the modal after submitting
+        window.location.reload();
       } else {
         console.error("Failed to add item");
       }

@@ -134,13 +134,62 @@ app.post("/products", (req, res) => {
     image_link,
     barcode,
   } = req.body;
-  const sql =
-    "INSERT INTO products (name, sku, price, stocks, category_id, measurement, image_link, barcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-  executeQuery(
-    sql,
-    [name, sku, price, stocks, category_id, measurement, image_link, barcode],
-    res
-  );
+
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.error("Database connection error:", err);
+      return res.status(500).json({ error: "Database connection error" });
+    }
+
+    connection.beginTransaction((err) => {
+      if (err) {
+        connection.release();
+        return res.status(500).json({ error: "Error starting transaction" });
+      }
+
+      // Insert product
+      const productSql = "INSERT INTO products (name, sku, price, stocks, category_id, measurement, image_link, barcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+      connection.query(productSql, [name, sku, price, stocks, category_id, measurement, image_link, barcode], (err, result) => {
+        if (err) {
+          return connection.rollback(() => {
+            connection.release();
+            res.status(500).json({ error: "Error creating product" });
+          });
+        }
+
+        const productId = result.insertId;
+
+        // Insert log after successful product creation
+        const logSql = "INSERT INTO logs (description, action) VALUES (?, ?)";
+        const logDetails = `Added new product: ${name} (SKU: ${sku}, Price: ${price}, Initial Stock: ${stocks})`;
+        
+        connection.query(logSql, [logDetails, "Add Item"], (logErr) => {
+          if (logErr) {
+            return connection.rollback(() => {
+              connection.release();
+              res.status(500).json({ error: "Error creating log" });
+            });
+          }
+
+          // Commit transaction
+          connection.commit((err) => {
+            if (err) {
+              return connection.rollback(() => {
+                connection.release();
+                res.status(500).json({ error: "Error committing transaction" });
+              });
+            }
+
+            connection.release();
+            res.status(200).json({
+              message: "Product created successfully",
+              productId: productId
+            });
+          });
+        });
+      });
+    });
+  });
 });
 
 app.put("/products/:id", (req, res) => {

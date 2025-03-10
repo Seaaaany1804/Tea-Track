@@ -32,7 +32,7 @@ export default function App() {
 
         <Route path="/dashboard" element={<DashboardPage />} />
 
-        <Route path="/all-orders" element={<OrderPage />} />
+        <Route path="/orders" element={<OrderPage />} />
 
         <Route path="/logs" element={<LogPage />} />
 
