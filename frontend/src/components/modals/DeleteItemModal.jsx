@@ -24,7 +24,7 @@ function DeleteItemModal({ isOpen, closeModal, item, handleDelete }) {
             <button
               type="button"
               onClick={() => {
-                handleDelete(item?.id); // This will trigger the delete action for the item
+                handleDelete(item); // This will trigger the delete action for the item
                 closeModal(); // Close the modal after confirming
               }}
               className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-800"

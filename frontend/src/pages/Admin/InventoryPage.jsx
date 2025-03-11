@@ -12,7 +12,7 @@ import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import EditItemModal from "../../components/modals/EditItemModal";
 import DeleteItemModal from "../../components/modals/DeleteItemModal";
 import { useNavigate } from "react-router-dom";
-import { formatToPeso } from "../../CustomFunctions";
+import { addNewLog, formatToPeso } from "../../CustomFunctions";
 
 function InventoryPage() {
 
@@ -79,14 +79,17 @@ function InventoryPage() {
     setIsDeleteModalOpen(false);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (item) => {
     try {
-      const response = await fetch(`https://teatrackbackend.vercel.app/products/${id}`, {
+      const response = await fetch(`https://teatrackbackend.vercel.app/products/${item?.id}`, {
         method: "DELETE",
       });
   
       if (response.ok) {
-        setProducts(products.filter(product => product.id !== id));
+        const logResponse = await addNewLog(`Deleted item: ${item?.name}`, "Delete Item");
+        if (logResponse.ok) {
+          setProducts(products.filter(product => product.id !== item?.id));
+        }
       } else {
         console.error("Failed to delete the product.");
       }
