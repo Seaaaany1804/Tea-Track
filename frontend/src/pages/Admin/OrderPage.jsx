@@ -11,7 +11,7 @@ import { TbTruckDelivery } from "react-icons/tb";
 import { LuArchiveRestore } from "react-icons/lu";
 import { MdSort } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
-import { formatDateToPHT, formatToPeso } from "../../CustomFunctions";
+import { addNewLog, formatDateToPHT, formatToPeso } from "../../CustomFunctions";
 
 function OrderPage() {
   const navigate = useNavigate();
@@ -37,7 +37,9 @@ function OrderPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch("https://teatrackbackend.vercel.app/orders");
+        const response = await fetch(
+          "https://teatrackbackend.vercel.app/orders"
+        );
         const data = await response.json();
         setOrderData(data);
       } catch (error) {
@@ -64,12 +66,19 @@ function OrderPage() {
       {
         method: "PUT",
         headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status: "Shipped" }),
-    });
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: "Shipped" }),
+      }
+    );
     if (response.ok) {
-      window.location.reload();
+      const response = await addNewLog(
+        `Set delivery status to Shipped for order ${selectedOrder?.orderId}`,
+        "Update Delivery Status"
+      );
+      if (response.ok) {
+        window.location.reload();
+      }
     } else {
       console.error("Failed to update order status");
     }
@@ -77,15 +86,24 @@ function OrderPage() {
 
   const handleConfirmArchive = async () => {
     setShowArchiveModal(false);
-    const response = await fetch(`https://teatrackbackend.vercel.app/set-order-status/${selectedOrder?.orderId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ status: "Delivered" }),
-    });
+    const response = await fetch(
+      `https://teatrackbackend.vercel.app/set-order-status/${selectedOrder?.orderId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: "Delivered" }),
+      }
+    );
     if (response.ok) {
-      window.location.reload();
+      const response = await addNewLog(
+        `Set delivery status to Delivered for order ${selectedOrder?.orderId}`,
+        "Mark as Delivered"
+      );
+      if (response.ok) {
+        window.location.reload();
+      }
     } else {
       console.error("Failed to update order status");
     }

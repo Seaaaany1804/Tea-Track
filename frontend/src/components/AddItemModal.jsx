@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Barcode from "react-barcode";
 import { FaBarcode } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { addNewLog } from "../CustomFunctions";
 
 function AddItemModal({ isOpen, closeModal }) {
   const [categories, setCategories] = useState([]);
@@ -35,7 +36,7 @@ function AddItemModal({ isOpen, closeModal }) {
   const handleFormChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  
+
   const handleBarcodeGeneration = () => {
     const generatedBarcode = `ITEM-${Math.random().toString(36).substr(2, 9)}`; // Simple random barcode generation
     const selectedCategory = categories.find(cat => cat.id === parseInt(formData.category_id));
@@ -86,7 +87,7 @@ function AddItemModal({ isOpen, closeModal }) {
       });
 
       if (response.ok) {
-        const response = await addNewLog(`Added: ${name}`, "Add Item");
+        const response = await addNewLog(`Added new item: ${name}`, "Add Item");
         if (response.ok) {
           closeModal(); // Close the modal after submitting
           window.location.reload();

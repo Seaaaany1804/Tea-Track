@@ -45,7 +45,7 @@ function LogPage() {
       try {
         const response = await fetch("https://teatrackbackend.vercel.app/logs");
         const data = await response.json();
-        setLogs(data);
+        setLogs(data.reverse());
       } catch (error) {
         console.error("Error fetching logs:", error);
       }

@@ -1,6 +1,6 @@
 export const formatDateToPHT = (dateString) => {
   const date = new Date(dateString);
-  date.setHours(date.getHours() + 8);
+  date.setHours(date.getHours());
   return date.toLocaleString("en-PH", {
     timeZone: "Asia/Manila", // Convert to Philippine Time (PHT)
     month: "long",

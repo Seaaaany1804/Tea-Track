@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaBarcode } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Barcode from "react-barcode";
+import { addNewLog } from "../../CustomFunctions";
 
 function EditItemModal({ isOpen, closeModal, item }) {
   const [formData, setFormData] = useState({
@@ -37,7 +38,8 @@ function EditItemModal({ isOpen, closeModal, item }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
+  const handleSave = async (e) => {
+    e.preventDefault();
     const updateItem = async () => {
       const response = await fetch(`https://teatrackbackend.vercel.app/products/${formData.id}`, {
         method: "PUT",
@@ -48,8 +50,11 @@ function EditItemModal({ isOpen, closeModal, item }) {
       });
 
       if (response.ok) {
-        closeModal();
-        navigate("/inventory");
+        const response = await addNewLog(`Updated item: ${formData.name}`, "Edit Item");
+        if (response.ok) {
+          closeModal();
+          window.location.reload();
+        }
       }
     };
     updateItem();
