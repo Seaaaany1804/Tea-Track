@@ -12,6 +12,20 @@ export const formatDateToPHT = (dateString) => {
   });
 };  
 
+export const formatToShortDate = (dateString) => {
+  const date = new Date(dateString);
+  date.setHours(date.getHours());
+  return date.toLocaleString("en-PH", {
+    timeZone: "Asia/Manila", // Convert to Philippine Time (PHT)
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}; 
+
 export const formatToPeso = (amount) => {
   return "₱ " + parseFloat(amount).toFixed(2);
 };

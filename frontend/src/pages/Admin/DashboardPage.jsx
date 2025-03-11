@@ -1,14 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/NavBar';
 import { FaBoxOpen, FaTruck, FaDollarSign } from 'react-icons/fa';
 import { MdOutlineInventory, MdAddCircleOutline, MdOutlineRemoveShoppingCart, MdNotificationsActive } from 'react-icons/md';
 import { Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
 import { useNavigate } from 'react-router-dom';
+import { formatDateToPHT, formatToShortDate } from '../../CustomFunctions';
 
 Chart.register(...registerables);
 
 const DashboardPage = () => {
+
+    const [logs, setLogs] = useState([]);
 
     // Sample Chart Data
     const data = {
@@ -41,6 +44,13 @@ const DashboardPage = () => {
         else if (userType !== 'admin') {
             navigate('/error');
         }
+
+        const fetchLogs = async () => {
+            const response = await fetch('https://teatrackbackend.vercel.app/logs');
+            const data = await response.json();
+            setLogs(data.reverse());
+        }
+        fetchLogs();
     }, [navigate]);
 
     return (
@@ -111,19 +121,15 @@ const DashboardPage = () => {
                     {/* Logs Section */}
                     <div className="bg-white shadow-lg p-6 rounded-lg col-span-1">
                         <h2 className="text-2xl font-semibold text-[#14463A] mb-4">Logs</h2>
-                        <ul className="space-y-2">
-                            <li className="flex justify-between items-center border-b pb-2">
-                                <span>Added New Item</span>
-                                <span className="text-gray-600">11/16/2024 12:39PM</span>
-                            </li>
-                            <li className="flex justify-between items-center border-b pb-2">
-                                <span>Added New Item</span>
-                                <span className="text-gray-600">11/16/2024 12:39PM</span>
-                            </li>
-                            <li className="flex justify-between items-center">
-                                <span>Added New Item</span>
-                                <span className="text-gray-600">11/16/2024 12:39PM</span>
-                            </li>
+                        <ul className="space-y-2 overflow-y-auto max-h-[330px]">
+                            {logs.map((log) => {
+                                return (
+                                    <li className="flex justify-between items-center border-b pb-2">
+                                        <span>{log.description}</span>
+                                        <span className="text-gray-600">{formatToShortDate(log.created_at)}</span>
+                                    </li>
+                                )
+                            })}
                         </ul>
                     </div>
 
