@@ -125,41 +125,41 @@ function InventoryPage() {
               </div>
             </div>
 
-            <div class="p-4">
-              <hr class="mb-4" />
+            <div className="p-4">
+              <hr className="mb-4" />
 
-              <div class="overflow-x-auto">
-                <table class="min-w-full shadow-md">
-                  <thead class="">
+              <div className="overflow-x-auto">
+                <table className="min-w-full shadow-md">
+                  <thead className="">
                     <tr>
-                      <th class="px-4 py-2">Image</th>
-                      <th class="px-4 py-2">SKU</th>
-                      <th class="px-4 py-2">Item Name</th>
-                      <th class="px-4 py-2">Category</th>
-                      <th class="px-4 py-2">Price</th>
-                      <th class="px-4 py-2">Measurement</th>
-                      <th class="px-4 py-2">Stocks</th>
-                      <th class="px-4 py-2">Action</th>
+                      <th className="px-4 py-2">Image</th>
+                      <th className="px-4 py-2">SKU</th>
+                      <th className="px-4 py-2">Item Name</th>
+                      <th className="px-4 py-2">Category</th>
+                      <th className="px-4 py-2">Price</th>
+                      <th className="px-4 py-2">Measurement</th>
+                      <th className="px-4 py-2">Stocks</th>
+                      <th className="px-4 py-2">Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {products.map((product) => {
                       return (
-                        <tr class="text-center">
-                          <td class="px-4 py-2 flex items-center justify-center">
+                        <tr className="text-center" key={product.id}>
+                          <td className="px-4 py-2 flex items-center justify-center">
                             <img
                               src={product.image_link}
                               alt="error"
                               className="w-16 h-16 object-contain"
                             />
                           </td>
-                          <td class="px-4 py-2">{product.sku}</td>
-                          <td class="px-4 py-2">{product.name}</td>
-                          <td class="px-4 py-2">{categories.find(category => category.id === product.category_id)?.name}</td>
-                          <td class="px-4 py-2">{formatToPeso(product.price)}</td>
-                          <td class="px-4 py-2">{product.measurement}</td>
-                          <td class="px-4 py-2">{product.stocks}</td>
-                          <td class="px-4 py-2">
+                          <td className="px-4 py-2">{product.sku}</td>
+                          <td className="px-4 py-2">{product.name}</td>
+                          <td className="px-4 py-2">{categories.find(category => category.id === product.category_id)?.name}</td>
+                          <td className="px-4 py-2">{formatToPeso(product.price)}</td>
+                          <td className="px-4 py-2">{product.measurement}</td>
+                          <td className="px-4 py-2">{product.stocks}</td>
+                          <td className="px-4 py-2">
                             <div className="space-x-2">
                               <button
                                 className="text-blue-500 hover:text-blue-700"

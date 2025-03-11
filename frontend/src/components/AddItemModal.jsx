@@ -86,8 +86,11 @@ function AddItemModal({ isOpen, closeModal }) {
       });
 
       if (response.ok) {
-        closeModal(); // Close the modal after submitting
-        window.location.reload();
+        const response = await addNewLog(`Added: ${name}`, "Add Item");
+        if (response.ok) {
+          closeModal(); // Close the modal after submitting
+          window.location.reload();
+        }
       } else {
         console.error("Failed to add item");
       }
