@@ -38,15 +38,16 @@ npm install react-scripts react-router-dom react-barcode --legacy-peer-deps
 npm audit fix --force
 ```
 
-Root Directory
+Backend
 
 ```bash
+cd backend
 npm install dotenv express mysql cors nodemon nodemailer --legacy-peer-deps
 ```
 
 ### 4. Run the System
 
-Go to the Root Directory
+Run this code for both Frontend and Backend
 
 ```bash
 npm start
