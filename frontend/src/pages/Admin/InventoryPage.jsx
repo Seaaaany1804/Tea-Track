@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../../components/NavBar";
-import {
-  FaAngleLeft,
-  FaAngleRight,
-  FaRegEdit,
-  FaRegTrashAlt,
-} from "react-icons/fa";
 import { MdSort } from "react-icons/md";
 import AddItemModal from "../../components/AddItemModal";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
@@ -51,7 +45,7 @@ function InventoryPage() {
     };
     getProducts();
     getCategories();
-  }, []);
+  }, [navigate]);
 
   const openModal = () => {
     setIsModalOpen(true);

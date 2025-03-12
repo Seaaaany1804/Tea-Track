@@ -67,12 +67,6 @@ function LoginPage() {
     }
   };
 
-  // Add this function to handle logout (you can use it in other components)
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    navigate('/login');
-  }
-
   return (
     <div className="h-screen bg-[#14463A]">
       <div className="absolute inset-0 overflow-hidden">

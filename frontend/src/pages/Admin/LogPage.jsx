@@ -16,9 +16,6 @@ function LogPage() {
     items: "January 14, 2025 2:10PM",
   }));
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = orderData.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(orderData.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
@@ -51,7 +48,7 @@ function LogPage() {
       }
     };
     fetchLogs();
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="bg-[#14463A] min-h-screen text-white">

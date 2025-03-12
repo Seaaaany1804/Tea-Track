@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/NavBar';
 import { FaBoxOpen, FaTruck, FaDollarSign } from 'react-icons/fa';
-import { MdOutlineInventory, MdAddCircleOutline, MdOutlineRemoveShoppingCart, MdNotificationsActive } from 'react-icons/md';
+import { MdOutlineInventory, MdAddCircleOutline, MdOutlineRemoveShoppingCart } from 'react-icons/md';
 import { Line } from 'react-chartjs-2';
 import { Chart, registerables } from 'chart.js';
 import { useNavigate } from 'react-router-dom';
-import { formatDateToPHT, formatToShortDate } from '../../CustomFunctions';
+import { formatToShortDate } from '../../CustomFunctions';
 
 Chart.register(...registerables);
 

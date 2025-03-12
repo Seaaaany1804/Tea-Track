@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Barcode from "react-barcode";
 import { FaBarcode } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import { addNewLog } from "../CustomFunctions";
 
 function AddItemModal({ isOpen, closeModal }) {
@@ -30,8 +29,6 @@ function AddItemModal({ isOpen, closeModal }) {
     image_link: "",
     barcode: "",
   });
-
-  const navigate = useNavigate();
 
   const handleFormChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

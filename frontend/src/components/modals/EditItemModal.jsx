@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { FaBarcode } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react" 
 import Barcode from "react-barcode";
 import { addNewLog } from "../../CustomFunctions";
 
@@ -15,8 +13,6 @@ function EditItemModal({ isOpen, closeModal, item }) {
     image_link: "",
     barcode: ""
   });
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (item) {

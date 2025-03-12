@@ -48,7 +48,7 @@ const Cart = () => {
     };
 
     getCartItems();
-  }, []);
+  }, [navigate]);
 
   const handleCheckboxChange = (order) => {
     setSelectedOrders((prevSelected) =>
@@ -63,7 +63,7 @@ const Cart = () => {
       const response = await fetch(`https://teatrackbackend.vercel.app/cart-items/${id}`, {
         method: "DELETE",
       });
-      const data = await response.json();
+
       if (response.ok) {
         setShowDeleteModal(false);
         setDeletedOrderId(null);

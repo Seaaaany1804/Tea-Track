@@ -5,7 +5,7 @@ import { MdDeleteForever } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 import { formatDateToPHT, formatToPeso } from '../../CustomFunctions';
 
-const Orders = () => {
+const   Orders = () => {
 
   const [orders, setOrders] = useState([]);
 
@@ -32,7 +32,7 @@ const Orders = () => {
     };
 
     getOrders();
-  }, []);
+  }, [navigate]);
 
   const [showModal, setShowModal] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState(null);

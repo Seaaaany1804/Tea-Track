@@ -17,7 +17,7 @@ const History = () => {
     else if (userType !== 'client') {
       navigate('/error');
     }
-  }, []);
+  }, [navigate]);
 
   const [orders, setOrders] = useState([]);
 

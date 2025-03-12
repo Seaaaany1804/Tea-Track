@@ -3,7 +3,6 @@ import Navbar from "../../components/NavBar";
 import {
   FaAngleLeft,
   FaAngleRight,
-  FaCheckCircle,
   FaChevronDown,
   FaChevronRight,
 } from "react-icons/fa";
