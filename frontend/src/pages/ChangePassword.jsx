@@ -1,4 +1,5 @@
 import BgCircle from "../components/bg-circle";
+import React from "react";
 
 const ChangePassword = () => {
     return (

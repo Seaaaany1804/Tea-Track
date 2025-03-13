@@ -6,8 +6,6 @@ function EmailVerificationModal({ email, userId, onClose }) {
   const [timer, setTimer] = useState(300); // 5 minutes countdown
   const [code, setCode] = useState(new Array(6).fill(""));
   const [showSuccessModal, setShowSuccessModal] = useState(false); // To show the new modal
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const navigate = useNavigate();
   const isInitialMount = useRef(true);  // Add this ref
@@ -19,8 +17,6 @@ function EmailVerificationModal({ email, userId, onClose }) {
 
   const sendVerificationCode = async () => {
     try {
-      setIsLoading(true);
-      setError('');
       
       // Generate new verification code and store it
       const newCode = generateVerificationCode();
@@ -39,10 +35,8 @@ function EmailVerificationModal({ email, userId, onClose }) {
         throw new Error('Failed to send verification code');
       }
     } catch (error) {
-      setError('Failed to send verification code');
       console.error(error);
     } finally {
-      setIsLoading(false);
     }
   };
 
@@ -104,7 +98,6 @@ function EmailVerificationModal({ email, userId, onClose }) {
     
     if (enteredCode === verificationCode) {
       try {
-        setIsLoading(true);
         const response = await fetch('https://teatrackbackend.vercel.app/api/verify-user', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -121,12 +114,9 @@ function EmailVerificationModal({ email, userId, onClose }) {
 
         setShowSuccessModal(true);
       } catch (error) {
-        setError('Verification failed. Please try again.');
       } finally {
-        setIsLoading(false);
       }
     } else {
-      setError('Invalid verification code!');
     }
   };
 
